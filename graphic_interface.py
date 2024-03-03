@@ -89,6 +89,8 @@ class GUI:
                         self.board.matrix[row][col] = 4
                     elif event.button == 3:  # Right click
                         self.board.matrix[row][col] = 3
+                    elif event.button == 2:
+                        self.board.matrix[row][col] = 0
                     # End if
                 # End if
             # End for
