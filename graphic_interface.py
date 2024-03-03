@@ -84,13 +84,14 @@ class GUI:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     row = event.pos[1] // self.square_size
                     col = event.pos[0] // self.square_size
-
-                    if event.button == 1:  # Left click
-                        self.board.matrix[row][col] = 4
-                    elif event.button == 3:  # Right click
-                        self.board.matrix[row][col] = 3
-                    elif event.button == 2:
-                        self.board.matrix[row][col] = 0
+                    if self.board.matrix[row][col] != 1 and self.board.matrix[row][col] != 2:
+                        if event.button == 1:  # Left click
+                            self.board.matrix[row][col] = 4
+                        elif event.button == 3:  # Right click
+                            self.board.matrix[row][col] = 3
+                        elif event.button == 2:
+                            self.board.matrix[row][col] = 0
+                        # End if
                     # End if
                 # End if
             # End for
