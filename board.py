@@ -10,8 +10,6 @@ def read_input_file(filename):
         # End for
         return n, pearls
     # End with
-
-
 # End def
 
 
@@ -23,3 +21,5 @@ class Board:
             self.matrix[pearl[0] - 1][pearl[1] - 1] = pearl[2]
         # End for
     # End def
+
+# End class
