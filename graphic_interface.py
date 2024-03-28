@@ -26,13 +26,14 @@ class GUI:
                 pygame.draw.rect(self.screen, self.BLACK,
                                  (col * self.square_size, row * self.square_size, self.square_size, self.square_size),
                                  1)
-                if self.board.matrix[row][col] == 1:
+                if self.board.pearls[row][col] == 1:
                     self.draw_circle(row, col, self.WHITE)
-                elif self.board.matrix[row][col] == 2:
+                elif self.board.pearls[row][col] == 2:
                     self.draw_circle(row, col, self.BLACK)
-                elif self.board.matrix[row][col] == 3:
+
+                if self.board.matrix[row][col] == 1:
                     self.draw_line(row, col, 'horizontal')
-                elif self.board.matrix[row][col] == 4:
+                elif self.board.matrix[row][col] == 2:
                     self.draw_line(row, col, 'vertical')
                 # End if
             # End for
@@ -84,15 +85,16 @@ class GUI:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     row = event.pos[1] // self.square_size
                     col = event.pos[0] // self.square_size
-                    if self.board.matrix[row][col] != 1 and self.board.matrix[row][col] != 2:
-                        if event.button == 1:  # Left click
-                            self.board.matrix[row][col] = 4
-                        elif event.button == 3:  # Right click
-                            self.board.matrix[row][col] = 3
-                        elif event.button == 2:
-                            self.board.matrix[row][col] = 0
-                        # End if
+                    if event.button == 1:  # Left click
+                        self.board.matrix[row][col] = 2
+                    elif event.button == 3:  # Right click
+                        self.board.matrix[row][col] = 1
+                    elif event.button == 2:
+                        self.board.matrix[row][col] = 0
                     # End if
+                    print("Hola")
+                    if self.board.verify_solution():
+                        print("¡Has ganado!")
                 # End if
             # End for
 
