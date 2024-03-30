@@ -125,6 +125,10 @@ class GUI:
                     print(self.board.matrix)
                     if self.board.verify_solution():
                         print("¡Has ganado!")
+
+                    if self.board.find_cycle():
+                        print("¡Has completado el ciclo!")
+
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:  # Tecla C
                         # Incrementar el valor y guardarlo en la matriz
@@ -136,6 +140,12 @@ class GUI:
                         self.c_value += 1
                         if self.c_value > 6:  # Si llega a 7, reiniciar en 3
                             self.c_value = 3
+
+                        if self.board.verify_solution():
+                            print("¡Has ganado!")
+
+                        if self.board.find_cycle():
+                            print("¡Has completado el ciclo!")
                 # End if
             # End for
 

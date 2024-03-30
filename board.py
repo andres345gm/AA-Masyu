@@ -27,6 +27,59 @@ class Board:
 
     # End def
 
+    def find_start_point(self):
+        for i in range(self.n):
+            for j in range(self.n):
+                if self.pearls[i][j] != 0:
+                    return i, j
+        return -1, -1
+
+    def is_valid_path(self, start, visited, parent):
+        visited[start[0]][start[1]] = True
+
+        # Define the possible directions for each line orientation
+        directions = {
+            1: [(0, -1), (0, 1)],  # horizontal
+            2: [(-1, 0), (1, 0)],  # vertical
+            3: [(-1, 0), (0, 1)],  # up and right
+            4: [(0, 1), (1, 0)],  # right and down
+            5: [(1, 0), (0, -1)],  # down and left
+            6: [(0, -1), (-1, 0)],  # left and up
+        }
+
+        if self.matrix[start[0]][start[1]] in directions:
+            for direction in directions[self.matrix[start[0]][start[1]]]:
+                next_i = start[0] + direction[0]
+                next_j = start[1] + direction[1]
+
+                if (0 <= next_i < self.n) and (0 <= next_j < self.n) and self.matrix[next_i][next_j] != 0:
+                    if not visited[next_i][next_j]:
+                        cycle_origin = self.is_valid_path((next_i, next_j), visited, start)
+                        if cycle_origin is not None:
+                            return cycle_origin
+                    elif parent[0] != next_i or parent[1] != next_j:
+                        return next_i, next_j
+
+        return None
+    def find_cycle(self):
+        start_i, start_j = self.find_start_point()
+        if start_i == -1 and start_j == -1:
+            return False
+
+        visited = [[False for _ in range(self.n)] for _ in range(self.n)]
+
+        cycle_origin = self.is_valid_path((start_i, start_j), visited, (-1, -1))
+
+        if cycle_origin is None or cycle_origin != (start_i, start_j):
+            return False
+
+        # Check if all pearls have been visited
+        for pearl in self.pearls_list:
+            if not visited[pearl[0] - 1][pearl[1] - 1]:
+                return False
+
+        return True
+
     def verify_solution(self):
         for pearl in self.pearls_list:
             row, col = pearl[0] - 1, pearl[1] - 1
