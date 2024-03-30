@@ -12,6 +12,7 @@ class GUI:
     def __init__(self, board):
         self.board = board
         self.square_size = self.WIDTH // self.board.n
+        self.c_value = 3
         # Initialize Pygame
         pygame.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -35,6 +36,14 @@ class GUI:
                     self.draw_line(row, col, 'horizontal')
                 elif self.board.matrix[row][col] == 2:
                     self.draw_line(row, col, 'vertical')
+                elif self.board.matrix[row][col] == 3:
+                    self.draw_line(row, col, 'up_right')
+                elif self.board.matrix[row][col] == 4:
+                    self.draw_line(row, col, 'down_right')
+                elif self.board.matrix[row][col] == 5:
+                    self.draw_line(row, col, 'down_left')
+                elif self.board.matrix[row][col] == 6:
+                    self.draw_line(row, col, 'up_left')
                 # End if
             # End for
         # End for
@@ -59,9 +68,10 @@ class GUI:
     # End def
 
     def draw_line(self, row, col, orientation):
-        # Define start and end points for the line within the cell
+        # Define start, end points and center for the line within the cell
         start_point = (col * self.square_size, row * self.square_size)
         end_point = ((col + 1) * self.square_size, (row + 1) * self.square_size)
+        center = ((col + 0.5) * self.square_size, (row + 0.5) * self.square_size)
 
         if orientation == 'horizontal':
             # Dibuja la línea horizontal en el medio de la celda
@@ -71,12 +81,31 @@ class GUI:
             # Dibuja la línea vertical en el medio de la celda
             pygame.draw.line(self.screen, self.BLACK, (start_point[0] + self.square_size // 2, start_point[1]),
                              (start_point[0] + self.square_size // 2, end_point[1]), self.LINE_WIDTH)
+        elif orientation == 'up_right':
+            end_point = (center[0] + self.square_size // 2, center[1])
+            pygame.draw.line(self.screen, self.BLACK, center, end_point, self.LINE_WIDTH)
+            pygame.draw.line(self.screen, self.BLACK, center, (center[0], center[1] - self.square_size // 2),
+                             self.LINE_WIDTH)
+        elif orientation == 'down_right':
+            end_point = (center[0], center[1] + self.square_size // 2)
+            pygame.draw.line(self.screen, self.BLACK, center, end_point, self.LINE_WIDTH)
+            pygame.draw.line(self.screen, self.BLACK, center, (center[0] + self.square_size // 2, center[1]),
+                             self.LINE_WIDTH)
+        elif orientation == 'down_left':
+            end_point = (center[0] - self.square_size // 2, center[1])
+            pygame.draw.line(self.screen, self.BLACK, center, end_point, self.LINE_WIDTH)
+            pygame.draw.line(self.screen, self.BLACK, center, (center[0], center[1] + self.square_size // 2),
+                             self.LINE_WIDTH)
+        elif orientation == 'up_left':
+            end_point = (center[0], center[1] - self.square_size // 2)
+            pygame.draw.line(self.screen, self.BLACK, center, end_point, self.LINE_WIDTH)
+            pygame.draw.line(self.screen, self.BLACK, center, (center[0] - self.square_size // 2, center[1]),
+                             self.LINE_WIDTH)
         # End if
 
     # End def
 
     def run(self):
-
         running = True
         while running:
             for event in pygame.event.get():
@@ -92,9 +121,21 @@ class GUI:
                     elif event.button == 2:
                         self.board.matrix[row][col] = 0
                     # End if
-                    print("Hola")
+                    print("Click en la celda ({}, {})".format(row, col))
+                    print(self.board.matrix)
                     if self.board.verify_solution():
                         print("¡Has ganado!")
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_c:  # Tecla C
+                        # Incrementar el valor y guardarlo en la matriz
+                        row = pygame.mouse.get_pos()[1] // self.square_size
+                        col = pygame.mouse.get_pos()[0] // self.square_size
+                        self.board.matrix[row][col] = self.c_value
+                        print("Click en la celda ({}, {})".format(row, col))
+                        print(self.board.matrix)
+                        self.c_value += 1
+                        if self.c_value > 6:  # Si llega a 7, reiniciar en 3
+                            self.c_value = 3
                 # End if
             # End for
 
@@ -104,5 +145,4 @@ class GUI:
         pygame.quit()
         sys.exit()
     # End def
-
 # End class
