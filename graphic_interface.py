@@ -1,5 +1,8 @@
 import pygame
 import sys
+import easygui
+
+
 
 
 class GUI:
@@ -17,6 +20,8 @@ class GUI:
         pygame.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Masyu con Pygame")
+        #self.menu_manager = MenuManager()
+
 
     # End def
 
@@ -105,6 +110,7 @@ class GUI:
 
     # End def
 
+
     def run(self):
         running = True
         while running:
@@ -125,9 +131,13 @@ class GUI:
                     #print(self.board.matrix)
                     if self.board.verify_pearls():
                         print("¡Has ganado!")
+                        # self.show_message("¡Has ganado!")
 
                     if self.board.find_cycle():
                         print("¡Has completado el ciclo!")
+                    easygui.msgbox('This is a basic message box.', 'Title Goes Here')
+
+
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:  # Tecla C
@@ -143,12 +153,12 @@ class GUI:
 
                         if self.board.verify_pearls():
                             print("¡Has ganado!")
+                            # self.show_message("¡Has ganado!")
 
                         if self.board.find_cycle():
                             print("¡Has completado el ciclo!")
                 # End if
             # End for
-
             self.draw_board()
             pygame.display.flip()  # Actualiza la pantalla
         # End while

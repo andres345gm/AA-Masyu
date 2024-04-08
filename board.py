@@ -139,4 +139,5 @@ class Board:
             right = self.matrix[row][col + 1] == 1
         return up, down, left, right
 
+
 # End class
