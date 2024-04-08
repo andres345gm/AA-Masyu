@@ -1,5 +1,6 @@
 import pygame
 import sys
+import textwrap
 
 
 class Menu:
@@ -9,7 +10,8 @@ class Menu:
     ORANGE = (240, 148, 64)
     LIGHT_ORANGE = (240, 179, 106)
     WIDTH, HEIGHT = 480, 480
-    MENU_FONT_SIZE = 32
+    MENU_FONT_SIZE = 24
+    INSTRUCTIONS_FONT_SIZE = 16
 
     def __init__(self):
         self.screen = None
@@ -134,7 +136,8 @@ class Menu:
                     # Opción de Instrucciones
                     elif instructions_button_rect.collidepoint(x, y):
                         # Lógica para las instrucciones
-                        print("Opción Elegida: Instrucciones")
+                        self.show_instructions()
+                        self.show_menu()
                         pass
                     # End if
 
@@ -147,6 +150,52 @@ class Menu:
             # End for
         # End while
     # End def
+
+    def show_instructions(self):
+        self.screen.fill(self.WHITE)
+
+        # Define the instructions text
+        instructions = [
+            "- Haz un solo recorrido con líneas que pasen por el centro de las celdas, ya sea horizontal o verticalmente. El recorrido nunca se cruza a sí mismo, se ramifica ni pasa por la misma celda dos veces.",
+            "- Las líneas deben pasar por todas las celdas con círculos negros y blancos.",
+            "- Las líneas que pasan por círculos blancos deben atravesar directamente su celda y hacer un giro en ángulo recto en al menos una de las celdas adyacentes al círculo blanco.",
+            "- Las líneas que pasan por círculos negros deben hacer un giro en ángulo recto en su celda, luego deben ir rectas a través de la siguiente celda (hasta el centro de la segunda celda) en ambos lados.",
+            "- Linea Vertical: Click Izquierdo, Linea Horizontal: Click Derecho, Curva 90°: Tecla 'C'"
+        ]
+
+        # Define the back button
+        back_button_text = "Volver"
+        back_button_rect = pygame.Rect((self.WIDTH - 200) // 2, self.HEIGHT - 70, 200, 50)
+
+        # Draw the instructions text
+        font = pygame.font.SysFont(None, self.INSTRUCTIONS_FONT_SIZE, bold=False)
+        y = 50
+        for instruction in instructions:
+            lines = textwrap.wrap(instruction, width=80)
+            for line in lines:
+                text = font.render(line, True, self.BLACK)
+                text_rect = text.get_rect(center=(self.WIDTH // 2, y))
+                self.screen.blit(text, text_rect)
+                y += 30
+
+        # Draw the back button
+        pygame.draw.rect(self.screen, self.ORANGE, back_button_rect)
+        back_text = font.render(back_button_text, True, self.BLACK)
+        back_text_rect = back_text.get_rect(center=back_button_rect.center)
+        self.screen.blit(back_text, back_text_rect)
+
+        pygame.display.flip()
+
+        # Handle mouse events
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if back_button_rect.collidepoint(x, y):
+                        return
 
     def run(self):
         while True:

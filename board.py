@@ -37,10 +37,10 @@ class Board:
         directions = {
             1: [(0, -1), (0, 1)],  # horizontal
             2: [(-1, 0), (1, 0)],  # vertical
-            3: [(-1, 0), (0, 1)],  # up and right
-            4: [(0, 1), (1, 0)],  # right and down
-            5: [(1, 0), (0, -1)],  # down and left
-            6: [(0, -1), (-1, 0)],  # left and up
+            3: [(0, 1), (1, 0)],  # up and left
+            4: [(1, 0), (0, -1)],  # up and right
+            5: [(0, -1), (-1, 0)],  # down and right
+            6: [(-1, 0), (0, 1)],  # down and left
         }
 
         if self.matrix[start[0]][start[1]] in directions:
