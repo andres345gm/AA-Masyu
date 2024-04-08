@@ -61,6 +61,7 @@ class Board:
                         return next_i, next_j
 
         return None
+
     def find_cycle(self):
         start_i, start_j = self.find_start_point()
         if start_i == -1 and start_j == -1:
@@ -80,11 +81,12 @@ class Board:
 
         return True
 
-    def verify_solution(self):
+    def verify_pearls(self):
         for pearl in self.pearls_list:
             row, col = pearl[0] - 1, pearl[1] - 1
             if pearl[2] == 1:
                 if not self.verify_white_pearl(row, col):
+                    print("Error en la perla blanca")
                     return False
                 # End if
             elif pearl[2] == 2:
@@ -92,25 +94,26 @@ class Board:
                     return False
                 # End if
             # End if
+        # End for
+
         return True
+
     # End def
 
     def verify_white_pearl(self, row, col):
         # Verification if the line is horizontal
         if col - 1 >= 0 and col + 1 < self.n:
             if self.matrix[row][col] == 1:
-                is_straight = self.matrix[row][col - 1] == 1 and self.matrix[row][col + 1] == 1
-                left_turn = self.matrix[row - 1][col - 1] == 2 or self.matrix[row + 1][col - 1] == 2
-                right_turn = self.matrix[row - 1][col + 1] == 2 or self.matrix[row + 1][col + 1] == 2
-                return is_straight and (left_turn or right_turn)
+                left_turn = self.matrix[row][col - 1] == 3 or self.matrix[row][col - 1] == 4
+                right_turn = self.matrix[row][col + 1] == 5 or self.matrix[row][col + 1] == 6
+                return left_turn or right_turn
             # End if
         if row - 1 >= 0 and row + 1 < self.n:
             # Verification if the line is vertical
             if self.matrix[row][col] == 2:
-                is_straight = self.matrix[row - 1][col] == 2 and self.matrix[row + 1][col] == 2
-                top_turn = self.matrix[row - 1][col - 1] == 1 or self.matrix[row - 1][col + 1] == 1
-                bottom_turn = self.matrix[row + 1][col - 1] == 1 or self.matrix[row + 1][col + 1] == 1
-                return is_straight and (top_turn or bottom_turn)
+                top_turn = self.matrix[row - 1][col] == 4 or self.matrix[row - 1][col] == 5
+                bottom_turn = self.matrix[row + 1][col] == 3 or self.matrix[row + 1][col] == 6
+                return top_turn or bottom_turn
             # End if
         return False
 
@@ -118,23 +121,15 @@ class Board:
 
     def verify_black_pearl(self, row, col):
         up, down, left, right = self.get_neighbours(row, col)
-        if up and right:
-            if row - 1 >= 0 and col + 1 < self.n:
-                return self.matrix[row][col + 1] == 1 and self.matrix[row - 1][col] == 2
-            # end if
-        elif up and left:
-            if row - 1 >= 0 and col - 1 >= 0:
-                return self.matrix[row][col - 1] == 1 and self.matrix[row - 1][col] == 2
-            # end if
-        elif down and right:
-            if row + 1 < self.n and col + 1 < self.n:
-                return self.matrix[row][col + 1] == 1 and self.matrix[row + 1][col] == 2
-            # end if
-        elif down and left:
-            if row + 1 < self.n and col - 1 >= 0:
-                return self.matrix[row][col - 1] == 1 and self.matrix[row + 1][col] == 2
-            # end if
-        # end if
+        if self.matrix[row][col] == 3:
+            return up and right
+        elif self.matrix[row][col] == 4:
+            return right and down
+        elif self.matrix[row][col] == 5:
+            return down and left
+        elif self.matrix[row][col] == 6:
+            return left and up
+        return False
 
     def get_neighbours(self, row, col):
         left, right, up, down = False, False, False, False

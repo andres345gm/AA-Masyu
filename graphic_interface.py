@@ -121,9 +121,9 @@ class GUI:
                     elif event.button == 2:
                         self.board.matrix[row][col] = 0
                     # End if
-                    print("Click en la celda ({}, {})".format(row, col))
-                    print(self.board.matrix)
-                    if self.board.verify_solution():
+                    # print("Click en la celda ({}, {})".format(row, col))
+                    #print(self.board.matrix)
+                    if self.board.verify_pearls():
                         print("¡Has ganado!")
 
                     if self.board.find_cycle():
@@ -135,13 +135,13 @@ class GUI:
                         row = pygame.mouse.get_pos()[1] // self.square_size
                         col = pygame.mouse.get_pos()[0] // self.square_size
                         self.board.matrix[row][col] = self.c_value
-                        print("Click en la celda ({}, {})".format(row, col))
-                        print(self.board.matrix)
+                        # print("Click en la celda ({}, {})".format(row, col))
+                        # print(self.board.matrix)
                         self.c_value += 1
                         if self.c_value > 6:  # Si llega a 7, reiniciar en 3
                             self.c_value = 3
 
-                        if self.board.verify_solution():
+                        if self.board.verify_pearls():
                             print("¡Has ganado!")
 
                         if self.board.find_cycle():
