@@ -28,11 +28,7 @@ class Board:
     # End def
 
     def find_start_point(self):
-        for i in range(self.n):
-            for j in range(self.n):
-                if self.pearls[i][j] != 0:
-                    return i, j
-        return -1, -1
+        return self.pearls_list[0][0] - 1, self.pearls_list[0][1] - 1
 
     def is_valid_path(self, start, visited, parent):
         visited[start[0]][start[1]] = True
