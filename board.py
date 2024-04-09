@@ -36,8 +36,9 @@ class Board:
             return False
         # End if
         graph = self.board_to_graph()
-        if self.verify_cycle(graph):
-            return True
+        if self.verify_cycle(graph)[0]:
+            if self.verify_pearls_in_cycle(self.verify_cycle(graph)[1]):
+                return True
         # End if
         return False
     # End def
@@ -162,15 +163,34 @@ class Board:
         stack = []
         start_node = self.find_start_point()
         stack.append((start_node, None))  # Usamos una tupla para rastrear el nodo y su padre
+        cycle_nodes = []  # Lista para almacenar los nodos del ciclo, si se encuentra
+        parent = {}  # Diccionario para rastrear los predecesores de los nodos
+
         while stack:
-            node, parent = stack.pop()
+            node, prev_node = stack.pop()
             visited.add(node)
             neighbours = graph[node]
             for neighbour in neighbours:
                 if neighbour not in visited:
                     stack.append((neighbour, node))  # Agregamos el nodo y su padre a la pila
-                elif neighbour != parent:  # Verificamos que el vecino no sea el padre del nodo actual
-                    return True  # Si encontramos un ciclo, devolvemos True
-        return False  # Si no encontramos ciclos, devolvemos False
-    # End def
+                    parent[neighbour] = node  # Actualizamos el predecesor del vecino
+                elif neighbour != prev_node:  # Verificamos que el vecino no sea el padre del nodo actual
+                    # Si encontramos un ciclo, agregamos los nodos del ciclo a la lista
+                    cycle_nodes.append(neighbour)
+                    current = node
+                    while current != neighbour:
+                        cycle_nodes.append(current)
+                        current = parent[current]
+                    cycle_nodes.append(neighbour)  # Agregamos el nodo vecino para completar el ciclo
+                    return True, cycle_nodes  # Devolvemos True y la lista de nodos del ciclo
+        return False, []  # Si no encontramos ciclos, devolvemos False y una lista vacía
+
+    def verify_pearls_in_cycle(self, cycle):
+        for pearl in self.pearls_list:
+            row, col = pearl[0] - 1, pearl[1] - 1
+            if (row, col) not in cycle:
+                return False
+            # End if
+        # End for
+        return True
 # End class

@@ -9,6 +9,7 @@ class GUI:
     # Constantes
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    ORANGE = (240, 148, 64)
     WIDTH, HEIGHT = 480, 480
     LINE_WIDTH = 3
 
@@ -110,6 +111,19 @@ class GUI:
 
     # End def
 
+    def display_message(self, message):
+        background = pygame.Surface((self.WIDTH // 2, self.HEIGHT // 4))
+        background.fill(self.ORANGE)
+        background_rect = background.get_rect(center=(self.WIDTH // 2, self.HEIGHT // 2))
+        self.screen.blit(background, background_rect)
+
+        font = pygame.font.Font(None, 36)
+        text = font.render(message, True, self.BLACK)
+        text_rect = text.get_rect(center=(self.WIDTH // 2, self.HEIGHT // 2))
+        self.screen.blit(text, text_rect)
+        pygame.display.flip()
+
+
 
     def run(self):
         running = True
@@ -128,7 +142,10 @@ class GUI:
                         self.board.matrix[row][col] = 0
                     # End if
                     if self.board.verify_board():
-                        print("¡Has ganado!")
+                        self.draw_board()
+                        pygame.display.flip()
+                        self.display_message("¡Has ganado!")
+                        pygame.time.wait(5000)
 
 
 
@@ -146,7 +163,10 @@ class GUI:
                             self.c_value = 3
 
                         if self.board.verify_board():
-                            print("¡Has ganado!")
+                            self.draw_board()
+                            pygame.display.flip()
+                            self.display_message("¡Has ganado!")
+                            pygame.time.wait(5000)
                 # End if
             # End for
             self.draw_board()
