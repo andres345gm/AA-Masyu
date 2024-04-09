@@ -1,8 +1,5 @@
 import pygame
 import sys
-import easygui
-
-
 
 
 class GUI:
@@ -21,8 +18,6 @@ class GUI:
         pygame.init()
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Masyu con Pygame")
-        #self.menu_manager = MenuManager()
-
 
     # End def
 
@@ -123,8 +118,6 @@ class GUI:
         self.screen.blit(text, text_rect)
         pygame.display.flip()
 
-
-
     def run(self):
         running = True
         while running:
@@ -146,9 +139,6 @@ class GUI:
                         pygame.display.flip()
                         self.display_message("¡Has ganado!")
                         pygame.time.wait(5000)
-
-
-
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:  # Tecla C

@@ -154,10 +154,6 @@ class Board:
             right_c = self.matrix[i][j + 1] == 1 or self.matrix[i][j + 1] == 5 or self.matrix[i][j + 1] == 6
         return left_c, right_c, up_c, down_c
 
-    def print_graph(self, graph):
-        for key in graph:
-            print(str(key) + " -> " + str(graph[key]))
-
     def verify_cycle(self, graph):
         visited = set()
         stack = []
