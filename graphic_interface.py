@@ -127,15 +127,9 @@ class GUI:
                     elif event.button == 2:
                         self.board.matrix[row][col] = 0
                     # End if
-                    # print("Click en la celda ({}, {})".format(row, col))
-                    #print(self.board.matrix)
-                    if self.board.verify_pearls():
+                    if self.board.verify_board():
                         print("¡Has ganado!")
-                        # self.show_message("¡Has ganado!")
 
-                    if self.board.find_cycle():
-                        print("¡Has completado el ciclo!")
-                    easygui.msgbox('This is a basic message box.', 'Title Goes Here')
 
 
 
@@ -151,12 +145,8 @@ class GUI:
                         if self.c_value > 6:  # Si llega a 7, reiniciar en 3
                             self.c_value = 3
 
-                        if self.board.verify_pearls():
+                        if self.board.verify_board():
                             print("¡Has ganado!")
-                            # self.show_message("¡Has ganado!")
-
-                        if self.board.find_cycle():
-                            print("¡Has completado el ciclo!")
                 # End if
             # End for
             self.draw_board()

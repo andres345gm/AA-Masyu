@@ -10,8 +10,6 @@ def read_input_file(filename):
         # End for
         return n, pearls
     # End with
-
-
 # End def
 
 
@@ -28,61 +26,27 @@ class Board:
     # End def
 
     def find_start_point(self):
-        return self.pearls_list[0][0] - 1, self.pearls_list[0][1] - 1
+        i = self.pearls_list[0][0] - 1
+        j = self.pearls_list[0][1] - 1
+        node = (i, j)
+        return node
 
-    def is_valid_path(self, start, visited, parent):
-        visited[start[0]][start[1]] = True
-
-        # Define the possible directions for each line orientation
-        directions = {
-            1: [(0, -1), (0, 1)],  # horizontal
-            2: [(-1, 0), (1, 0)],  # vertical
-            3: [(0, 1), (1, 0)],  # up and left
-            4: [(1, 0), (0, -1)],  # up and right
-            5: [(0, -1), (-1, 0)],  # down and right
-            6: [(-1, 0), (0, 1)],  # down and left
-        }
-
-        if self.matrix[start[0]][start[1]] in directions:
-            for direction in directions[self.matrix[start[0]][start[1]]]:
-                next_i = start[0] + direction[0]
-                next_j = start[1] + direction[1]
-
-                if (0 <= next_i < self.n) and (0 <= next_j < self.n) and self.matrix[next_i][next_j] != 0:
-                    if not visited[next_i][next_j]:
-                        cycle_origin = self.is_valid_path((next_i, next_j), visited, start)
-                        if cycle_origin is not None:
-                            return cycle_origin
-                    elif parent[0] != next_i or parent[1] != next_j:
-                        return next_i, next_j
-
-        return None
-
-    def find_cycle(self):
-        start_i, start_j = self.find_start_point()
-        if start_i == -1 and start_j == -1:
+    def verify_board(self):
+        if not self.verify_pearls():
             return False
-
-        visited = [[False for _ in range(self.n)] for _ in range(self.n)]
-
-        cycle_origin = self.is_valid_path((start_i, start_j), visited, (-1, -1))
-
-        if cycle_origin is None or cycle_origin != (start_i, start_j):
-            return False
-
-        # Check if all pearls have been visited
-        for pearl in self.pearls_list:
-            if not visited[pearl[0] - 1][pearl[1] - 1]:
-                return False
-
-        return True
+        # End if
+        graph = self.board_to_graph()
+        if self.verify_cycle(graph):
+            return True
+        # End if
+        return False
+    # End def
 
     def verify_pearls(self):
         for pearl in self.pearls_list:
             row, col = pearl[0] - 1, pearl[1] - 1
             if pearl[2] == 1:
                 if not self.verify_white_pearl(row, col):
-                    print("Error en la perla blanca")
                     return False
                 # End if
             elif pearl[2] == 2:
@@ -139,5 +103,74 @@ class Board:
             right = self.matrix[row][col + 1] == 1
         return up, down, left, right
 
+    def board_to_graph(self):
+        graph = {}
+        for i in range(self.n):
+            for j in range(self.n):
+                graph[(i, j)] = []
+                left_c, right_c, up_c, down_c = self.get_connections(i, j)
+                if self.matrix[i][j] == 1:
+                    if left_c:
+                        graph[(i, j)].append((i, j - 1))
+                    if right_c:
+                        graph[(i, j)].append((i, j + 1))
+                elif self.matrix[i][j] == 2:
+                    if up_c:
+                        graph[(i, j)].append((i - 1, j))
+                    if down_c:
+                        graph[(i, j)].append((i + 1, j))
+                elif self.matrix[i][j] == 3:
+                    if up_c:
+                        graph[(i, j)].append((i - 1, j))
+                    if right_c:
+                        graph[(i, j)].append((i, j + 1))
+                elif self.matrix[i][j] == 4:
+                    if right_c:
+                        graph[(i, j)].append((i, j + 1))
+                    if down_c:
+                        graph[(i, j)].append((i + 1, j))
+                elif self.matrix[i][j] == 5:
+                    if down_c:
+                        graph[(i, j)].append((i + 1, j))
+                    if left_c:
+                        graph[(i, j)].append((i, j - 1))
+                elif self.matrix[i][j] == 6:
+                    if left_c:
+                        graph[(i, j)].append((i, j - 1))
+                    if up_c:
+                        graph[(i, j)].append((i - 1, j))
+        return graph
 
+    def get_connections(self, i, j):
+        left_c, right_c, up_c, down_c = False, False, False, False
+        if i - 1 >= 0:
+            up_c = self.matrix[i - 1][j] == 2 or self.matrix[i - 1][j] == 4 or self.matrix[i - 1][j] == 5
+        if i + 1 < self.n:
+            down_c = self.matrix[i + 1][j] == 2 or self.matrix[i + 1][j] == 3 or self.matrix[i + 1][j] == 6
+        if j - 1 >= 0:
+            left_c = self.matrix[i][j - 1] == 1 or self.matrix[i][j - 1] == 3 or self.matrix[i][j - 1] == 4
+        if j + 1 < self.n:
+            right_c = self.matrix[i][j + 1] == 1 or self.matrix[i][j + 1] == 5 or self.matrix[i][j + 1] == 6
+        return left_c, right_c, up_c, down_c
+
+    def print_graph(self, graph):
+        for key in graph:
+            print(str(key) + " -> " + str(graph[key]))
+
+    def verify_cycle(self, graph):
+        visited = set()
+        stack = []
+        start_node = self.find_start_point()
+        stack.append((start_node, None))  # Usamos una tupla para rastrear el nodo y su padre
+        while stack:
+            node, parent = stack.pop()
+            visited.add(node)
+            neighbours = graph[node]
+            for neighbour in neighbours:
+                if neighbour not in visited:
+                    stack.append((neighbour, node))  # Agregamos el nodo y su padre a la pila
+                elif neighbour != parent:  # Verificamos que el vecino no sea el padre del nodo actual
+                    return True  # Si encontramos un ciclo, devolvemos True
+        return False  # Si no encontramos ciclos, devolvemos False
+    # End def
 # End class
