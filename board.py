@@ -189,4 +189,27 @@ class Board:
             # End if
         # End for
         return True
+
+    def solve_board(self, matrix):
+        variables = self.find_variables()
+
+        if len(variables) == 0:
+            if self.verify_board():
+                return matrix
+
+
+    def find_variables(self, matrix):
+        variables = []
+        for i in range(self.n):
+            for j in range(self.n):
+                if matrix[i][j] == 0:
+                    append = (i, j)
+                # End if
+            # End for
+        # End for
+        return variables
+
+
+
+
 # End class
