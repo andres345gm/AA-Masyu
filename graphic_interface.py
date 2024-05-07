@@ -157,6 +157,16 @@ class GUI:
                             pygame.display.flip()
                             self.display_message("¡Has ganado!")
                             pygame.time.wait(5000)
+                    if event.key == pygame.K_r: # Tecla R
+                        current_matrix = self.board.matrix
+                        solution = self.board.solve_board(current_matrix)
+                        if solution is not None:
+                            self.board.matrix = solution
+                            print("Solución encontrada")
+                        else:
+                            print("No se encontró solución")
+                        self.draw_board()
+                        pygame.display.flip()
                 # End if
             # End for
             self.draw_board()

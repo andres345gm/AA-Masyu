@@ -10,6 +10,8 @@ def read_input_file(filename):
         # End for
         return n, pearls
     # End with
+
+
 # End def
 
 
@@ -32,26 +34,30 @@ class Board:
         return node
 
     def verify_board(self):
-        if not self.verify_pearls():
+        return self.verify_board_aux(self.matrix)
+
+    def verify_board_aux(self, matrix):
+        if not self.verify_pearls(matrix):
             return False
         # End if
-        graph = self.board_to_graph()
+        graph = self.board_to_graph(matrix)
         if self.verify_cycle(graph)[0]:
             if self.verify_pearls_in_cycle(self.verify_cycle(graph)[1]):
                 return True
         # End if
         return False
+
     # End def
 
-    def verify_pearls(self):
+    def verify_pearls(self, matrix):
         for pearl in self.pearls_list:
             row, col = pearl[0] - 1, pearl[1] - 1
             if pearl[2] == 1:
-                if not self.verify_white_pearl(row, col):
+                if not self.verify_white_pearl(matrix, row, col):
                     return False
                 # End if
             elif pearl[2] == 2:
-                if not self.verify_black_pearl(row, col):
+                if not self.verify_black_pearl(matrix, row, col):
                     return False
                 # End if
             # End if
@@ -61,98 +67,98 @@ class Board:
 
     # End def
 
-    def verify_white_pearl(self, row, col):
+    def verify_white_pearl(self, matrix, row, col):
         # Verification if the line is horizontal
         if col - 1 >= 0 and col + 1 < self.n:
-            if self.matrix[row][col] == 1:
-                left_turn = self.matrix[row][col - 1] == 3 or self.matrix[row][col - 1] == 4
-                right_turn = self.matrix[row][col + 1] == 5 or self.matrix[row][col + 1] == 6
+            if matrix[row][col] == 1:
+                left_turn = matrix[row][col - 1] == 3 or matrix[row][col - 1] == 4
+                right_turn = matrix[row][col + 1] == 5 or matrix[row][col + 1] == 6
                 return left_turn or right_turn
             # End if
         if row - 1 >= 0 and row + 1 < self.n:
             # Verification if the line is vertical
-            if self.matrix[row][col] == 2:
-                top_turn = self.matrix[row - 1][col] == 4 or self.matrix[row - 1][col] == 5
-                bottom_turn = self.matrix[row + 1][col] == 3 or self.matrix[row + 1][col] == 6
+            if matrix[row][col] == 2:
+                top_turn = matrix[row - 1][col] == 4 or matrix[row - 1][col] == 5
+                bottom_turn = matrix[row + 1][col] == 3 or matrix[row + 1][col] == 6
                 return top_turn or bottom_turn
             # End if
         return False
 
     # end def
 
-    def verify_black_pearl(self, row, col):
-        up, down, left, right = self.get_neighbours(row, col)
-        if self.matrix[row][col] == 3:
+    def get_neighbours(self, matrix, row, col):
+        left, right, up, down = False, False, False, False
+        if row - 1 >= 0:
+            up = matrix[row - 1][col] == 2
+        if row + 1 < self.n:
+            down = matrix[row + 1][col] == 2
+        if col - 1 >= 0:
+            left = matrix[row][col - 1] == 1
+        if col + 1 < self.n:
+            right = matrix[row][col + 1] == 1
+        return up, down, left, right
+
+    def get_connections(self, matrix, i, j):
+        left_c, right_c, up_c, down_c = False, False, False, False
+        if i - 1 >= 0:
+            up_c = matrix[i - 1][j] == 2 or matrix[i - 1][j] == 4 or matrix[i - 1][j] == 5
+        if i + 1 < self.n:
+            down_c = matrix[i + 1][j] == 2 or matrix[i + 1][j] == 3 or matrix[i + 1][j] == 6
+        if j - 1 >= 0:
+            left_c = matrix[i][j - 1] == 1 or matrix[i][j - 1] == 3 or matrix[i][j - 1] == 4
+        if j + 1 < self.n:
+            right_c = matrix[i][j + 1] == 1 or matrix[i][j + 1] == 5 or matrix[i][j + 1] == 6
+        return left_c, right_c, up_c, down_c
+
+    def verify_black_pearl(self, matrix, row, col):
+        up, down, left, right = self.get_neighbours(matrix, row, col)
+        if matrix[row][col] == 3:
             return up and right
-        elif self.matrix[row][col] == 4:
+        elif matrix[row][col] == 4:
             return right and down
-        elif self.matrix[row][col] == 5:
+        elif matrix[row][col] == 5:
             return down and left
-        elif self.matrix[row][col] == 6:
+        elif matrix[row][col] == 6:
             return left and up
         return False
 
-    def get_neighbours(self, row, col):
-        left, right, up, down = False, False, False, False
-        if row - 1 >= 0:
-            up = self.matrix[row - 1][col] == 2
-        if row + 1 < self.n:
-            down = self.matrix[row + 1][col] == 2
-        if col - 1 >= 0:
-            left = self.matrix[row][col - 1] == 1
-        if col + 1 < self.n:
-            right = self.matrix[row][col + 1] == 1
-        return up, down, left, right
-
-    def board_to_graph(self):
+    def board_to_graph(self, matrix):
         graph = {}
         for i in range(self.n):
             for j in range(self.n):
                 graph[(i, j)] = []
-                left_c, right_c, up_c, down_c = self.get_connections(i, j)
-                if self.matrix[i][j] == 1:
+                left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
+                if matrix[i][j] == 1:
                     if left_c:
                         graph[(i, j)].append((i, j - 1))
                     if right_c:
                         graph[(i, j)].append((i, j + 1))
-                elif self.matrix[i][j] == 2:
+                elif matrix[i][j] == 2:
                     if up_c:
                         graph[(i, j)].append((i - 1, j))
                     if down_c:
                         graph[(i, j)].append((i + 1, j))
-                elif self.matrix[i][j] == 3:
+                elif matrix[i][j] == 3:
                     if up_c:
                         graph[(i, j)].append((i - 1, j))
                     if right_c:
                         graph[(i, j)].append((i, j + 1))
-                elif self.matrix[i][j] == 4:
+                elif matrix[i][j] == 4:
                     if right_c:
                         graph[(i, j)].append((i, j + 1))
                     if down_c:
                         graph[(i, j)].append((i + 1, j))
-                elif self.matrix[i][j] == 5:
+                elif matrix[i][j] == 5:
                     if down_c:
                         graph[(i, j)].append((i + 1, j))
                     if left_c:
                         graph[(i, j)].append((i, j - 1))
-                elif self.matrix[i][j] == 6:
+                elif matrix[i][j] == 6:
                     if left_c:
                         graph[(i, j)].append((i, j - 1))
                     if up_c:
                         graph[(i, j)].append((i - 1, j))
         return graph
-
-    def get_connections(self, i, j):
-        left_c, right_c, up_c, down_c = False, False, False, False
-        if i - 1 >= 0:
-            up_c = self.matrix[i - 1][j] == 2 or self.matrix[i - 1][j] == 4 or self.matrix[i - 1][j] == 5
-        if i + 1 < self.n:
-            down_c = self.matrix[i + 1][j] == 2 or self.matrix[i + 1][j] == 3 or self.matrix[i + 1][j] == 6
-        if j - 1 >= 0:
-            left_c = self.matrix[i][j - 1] == 1 or self.matrix[i][j - 1] == 3 or self.matrix[i][j - 1] == 4
-        if j + 1 < self.n:
-            right_c = self.matrix[i][j + 1] == 1 or self.matrix[i][j + 1] == 5 or self.matrix[i][j + 1] == 6
-        return left_c, right_c, up_c, down_c
 
     def verify_cycle(self, graph):
         visited = set()
@@ -190,24 +196,199 @@ class Board:
         # End for
         return True
 
+
     def solve_board(self, matrix):
-        variables = self.find_variables()
 
+        variables = self.find_variables(matrix)
         if len(variables) == 0:
-            if self.verify_board():
+            if self.verify_board_aux(matrix):
                 return matrix
+            else:
+                return None
 
+        if self.verify_board_aux(matrix):
+            return matrix
+
+        domains = self.find_domains(matrix)
+        #self.print_domain(domains)
+        variable = self.select_variable(domains)
+        # print("Variable", variable)
+        for value in domains[variable]:
+            matrix[variable[0]][variable[1]] = value
+
+            domains = self.find_domains(matrix)
+            if self.verify_domain(domains):
+                result = self.solve_board(matrix)
+                if result is not None:
+                    return result
+            matrix[variable[0]][variable[1]] = 0
+        return None
+
+    """
+    def solve_board(self, matrix):
+        variables = self.find_variables(matrix)
+        if len(variables) == 0:
+            if self.verify_board_aux(matrix):
+                return matrix
+            else:
+                return None
+        if self.verify_board_aux(matrix):
+            return matrix
+        variable = variables[0]
+        #domains = self.find_domains(matrix)
+        for value in range(1, 7):
+            matrix[variable[0]][variable[1]] = value
+            result = self.solve_board(matrix)
+            if result is not None:
+                return result
+            matrix[variable[0]][variable[1]] = 0
+        return None
+    """
 
     def find_variables(self, matrix):
         variables = []
         for i in range(self.n):
             for j in range(self.n):
                 if matrix[i][j] == 0:
-                    append = (i, j)
+                    variables.append((i, j))
                 # End if
             # End for
         # End for
         return variables
+
+    def find_domains(self, matrix):
+        domain = {}
+        for i in range(self.n):
+            for j in range(self.n):
+                if matrix[i][j] == 0:
+                    domain[(i, j)] = []
+                    left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
+                    if self.pearls[i][j] == 0:
+                        if left_c and right_c:
+                            domain[(i, j)].append(1)
+                        elif up_c and down_c:
+                            domain[(i, j)].append(2)
+                        elif up_c and right_c:
+                            domain[(i, j)].append(3)
+                        elif right_c and down_c:
+                            domain[(i, j)].append(4)
+                        elif down_c and left_c:
+                            domain[(i, j)].append(5)
+                        elif left_c and up_c:
+                            domain[(i, j)].append(6)
+                        elif left_c:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                        elif right_c:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                        elif up_c:
+                            domain[(i, j)].append(2)
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(6)
+                        elif down_c:
+                            domain[(i, j)].append(2)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(4)
+                        else:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(2)
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                    if self.pearls[i][j] == 1:
+                        if left_c and right_c:
+                            if self.verify_white_pearl_horizontal(matrix, i, j):
+                                domain[(i, j)].append(1)
+                        elif up_c and down_c:
+                            if self.verify_white_pearl_vertical(matrix, i, j):
+                                domain[(i, j)].append(2)
+                        elif left_c or right_c:
+                            domain[(i, j)].append(1)
+                        elif up_c or down_c:
+                            domain[(i, j)].append(2)
+                        else:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(2)
+                    elif self.pearls[i][j] == 2:
+                        s_up, s_down, s_left, s_right = self.get_neighbours(matrix, i, j)
+                        if s_up and s_right:
+                            domain[(i, j)].append(3)
+                        if s_right and s_down:
+                            domain[(i, j)].append(4)
+                        if s_down and s_left:
+                            domain[(i, j)].append(5)
+                        if s_left and s_up:
+                            domain[(i, j)].append(6)
+                        if s_up:
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(6)
+                        if s_right:
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                        if s_down:
+                            domain[(i, j)].append(4)
+                            domain[(i, j)].append(5)
+                        if s_left:
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                        else:
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                # End if
+            # End for
+        # End for
+        return domain
+
+    def verify_domain(self, domains):
+        for key in domains.keys():
+            if len(domains[key]) == 0:
+                return False
+        return True
+
+    def select_variable(self, domain):
+        min_domain = float('inf')
+        variable = None
+        for key in domain.keys():
+            if len(domain[key]) < min_domain:
+                min_domain = len(domain[key])
+                variable = key
+        return variable
+
+    def verify_white_pearl_horizontal(self, matrix, row, col):
+        # Verification if the line is horizontal
+        if col - 1 >= 0 and col + 1 < self.n:
+            left_turn = matrix[row][col - 1] == 3 or matrix[row][col - 1] == 4
+            right_turn = matrix[row][col + 1] == 5 or matrix[row][col + 1] == 6
+            return left_turn or right_turn
+            # End if
+        return False
+
+    # end def
+    def verify_white_pearl_vertical(self, matrix, row, col):
+        # Verification if the line is vertical
+        if row - 1 >= 0 and row + 1 < self.n:
+            top_turn = matrix[row - 1][col] == 4 or matrix[row - 1][col] == 5
+            bottom_turn = matrix[row + 1][col] == 3 or matrix[row + 1][col] == 6
+            return top_turn or bottom_turn
+            # End if
+        return False
+
+    # End def
+
+
+
+    def print_domain(self, domain):
+        for key in domain.keys():
+            print(key, "->", domain[key])
+
+
+
 
 
 
