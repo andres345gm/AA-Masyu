@@ -434,144 +434,18 @@ class Board:
                 domain[(i, j)].remove(4)
 
     def get_adjacent(self, matrix, row, col):
-        adjacent = []
+        a_right, a_left, a_up, a_down = None, None, None, None
         if row - 1 >= 0:
-            adjacent.append((row - 1, col))
+            a_up = matrix[row - 1][col]
         if row + 1 < self.n:
-            adjacent.append((row + 1, col))
+            a_down = matrix[row + 1][col]
         if col - 1 >= 0:
-            adjacent.append((row, col - 1))
+            a_left = matrix[row][col - 1]
         if col + 1 < self.n:
-            adjacent.append((row, col + 1))
+            a_right = matrix[row][col + 1]
         return adjacent
 
 
-    """
-    def find_domains(self, matrix):
-        domain = {}
-        for i in range(self.n):
-            for j in range(self.n):
-                if matrix[i][j] == 0:
-                    domain[(i, j)] = []
-                    left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
-
-                    if self.pearls[i][j] == 0:
-                        domain[(i, j)].append(0)
-                        if left_c and right_c:
-                            domain[(i, j)].append(1)
-                        elif up_c and down_c:
-                            domain[(i, j)].append(2)
-                        elif up_c and right_c:
-                            domain[(i, j)].append(3)
-                        elif right_c and down_c:
-                            domain[(i, j)].append(4)
-                        elif down_c and left_c:
-                            domain[(i, j)].append(5)
-                        elif left_c and up_c:
-                            domain[(i, j)].append(6)
-                        elif left_c:
-                            domain[(i, j)].append(1)
-                            domain[(i, j)].append(5)
-                            domain[(i, j)].append(6)
-                        elif right_c:
-                            domain[(i, j)].append(1)
-                            domain[(i, j)].append(3)
-                            domain[(i, j)].append(4)
-                        elif up_c:
-                            domain[(i, j)].append(2)
-                            domain[(i, j)].append(3)
-                            domain[(i, j)].append(6)
-                        elif down_c:
-                            domain[(i, j)].append(2)
-                            domain[(i, j)].append(5)
-                            domain[(i, j)].append(4)
-                        else:
-                            domain[(i, j)].append(1)
-                            domain[(i, j)].append(2)
-                            domain[(i, j)].append(3)
-                            domain[(i, j)].append(4)
-                            domain[(i, j)].append(5)
-                            domain[(i, j)].append(6)
-                    if self.pearls[i][j] == 1:
-                        if left_c and right_c:
-                            if self.verify_white_pearl_horizontal(matrix, i, j):
-                                domain[(i, j)].append(1)
-                        elif up_c and down_c:
-                            if self.verify_white_pearl_vertical(matrix, i, j):
-                                domain[(i, j)].append(2)
-                        elif left_c or right_c:
-                            domain[(i, j)].append(1)
-                        elif up_c or down_c:
-                            domain[(i, j)].append(2)
-                        else:
-                            domain[(i, j)].append(1)
-                            domain[(i, j)].append(2)
-                    elif self.pearls[i][j] == 2:
-                        s_up, s_down, s_left, s_right = self.get_neighbours(matrix, i, j)
-                        if s_up and s_right:
-                            domain[(i, j)].append(3)
-                        if s_right and s_down:
-                            domain[(i, j)].append(4)
-                        if s_down and s_left:
-                            domain[(i, j)].append(5)
-                        if s_left and s_up:
-                            domain[(i, j)].append(6)
-                        if s_up:
-                            domain[(i, j)].append(3)
-                            domain[(i, j)].append(6)
-                        if s_right:
-                            domain[(i, j)].append(3)
-                            domain[(i, j)].append(4)
-                        if s_down:
-                            domain[(i, j)].append(4)
-                            domain[(i, j)].append(5)
-                        if s_left:
-                            domain[(i, j)].append(5)
-                            domain[(i, j)].append(6)
-                        else:
-                            domain[(i, j)].append(3)
-                            domain[(i, j)].append(4)
-                            domain[(i, j)].append(5)
-                            domain[(i, j)].append(6)
-
-                    if i == 0:
-                        if 2 in domain[(i, j)]:
-                            domain[(i, j)].remove(2)
-                        if 3 in domain[(i, j)]:
-                            domain[(i, j)].remove(3)
-                        if 6 in domain[(i, j)]:
-                            domain[(i, j)].remove(6)
-
-                    if j == 0:
-                        if 1 in domain[(i, j)]:
-                            domain[(i, j)].remove(1)
-                        if 5 in domain[(i, j)]:
-                            domain[(i, j)].remove(5)
-                        if 6 in domain[(i, j)]:
-                            domain[(i, j)].remove(6)
-
-                    if i == self.n - 1:
-                        if 2 in domain[(i, j)]:
-                            domain[(i, j)].remove(2)
-                        if 5 in domain[(i, j)]:
-                            domain[(i, j)].remove(5)
-                        if 4 in domain[(i, j)]:
-                            domain[(i, j)].remove(4)
-
-                    if j == self.n - 1:
-                        if 1 in domain[(i, j)]:
-                            domain[(i, j)].remove(1)
-                        if 3 in domain[(i, j)]:
-                            domain[(i, j)].remove(3)
-                        if 4 in domain[(i, j)]:
-                            domain[(i, j)].remove(4)
-
-                # End if
-            # End for
-        # End for
-        return domain
-        
-    """
 
     """
     def find_domains(self, matrix):
