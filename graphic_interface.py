@@ -158,8 +158,8 @@ class GUI:
                             self.display_message("¡Has ganado!")
                             pygame.time.wait(5000)
                     if event.key == pygame.K_r: # Tecla R
-                        current_matrix = self.board.matrix
-                        solution = self.board.solve_board(current_matrix)
+
+                        solution = self.board.solve_board()
                         if solution is not None:
                             self.board.matrix = solution
                             print("Solución encontrada")

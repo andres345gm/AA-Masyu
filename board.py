@@ -196,10 +196,14 @@ class Board:
         # End for
         return True
 
+    def solve_board(self):
+        matrix = self.matrix.copy()
+        marked_nodes = set()
+        return self.solve_board_aux(matrix, marked_nodes)
 
-    def solve_board(self, matrix):
+    def solve_board_aux(self, matrix, marked_nodes):
 
-        variables = self.find_variables(matrix)
+        variables = self.find_variables(matrix, marked_nodes)
         if len(variables) == 0:
             if self.verify_board_aux(matrix):
                 return matrix
@@ -209,18 +213,21 @@ class Board:
         if self.verify_board_aux(matrix):
             return matrix
 
-        domains = self.find_domains(matrix)
-        #self.print_domain(domains)
+        domains = self.find_domains(matrix, marked_nodes)
+        self.print_domain(domains)
         variable = self.select_variable(domains)
         # print("Variable", variable)
         for value in domains[variable]:
+            print("Value", value)
+            marked_nodes.add(variable)
             matrix[variable[0]][variable[1]] = value
 
-            domains = self.find_domains(matrix)
+            domains = self.find_domains(matrix, marked_nodes)
             if self.verify_domain(domains):
-                result = self.solve_board(matrix)
+                result = self.solve_board_aux(matrix, marked_nodes)
                 if result is not None:
                     return result
+            marked_nodes.remove(variable)
             matrix[variable[0]][variable[1]] = 0
         return None
 
@@ -245,25 +252,41 @@ class Board:
         return None
     """
 
-    def find_variables(self, matrix):
+    """
+        def find_variables(self, matrix):
+            variables = []
+            for i in range(self.n):
+                for j in range(self.n):
+                    if matrix[i][j] == 0:
+                        variables.append((i, j))
+                    # End if
+                # End for
+            # End for
+            return variables
+    """
+
+    def find_variables(self, matrix, marked_nodes):
         variables = []
         for i in range(self.n):
             for j in range(self.n):
-                if matrix[i][j] == 0:
+                if (i, j) not in marked_nodes:
                     variables.append((i, j))
                 # End if
             # End for
         # End for
         return variables
 
-    def find_domains(self, matrix):
+
+    def find_domains(self, matrix, marked_nodes):
         domain = {}
         for i in range(self.n):
             for j in range(self.n):
-                if matrix[i][j] == 0:
+                if (i, j) not in marked_nodes:
                     domain[(i, j)] = []
                     left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
+
                     if self.pearls[i][j] == 0:
+                        domain[(i, j)].append(0)
                         if left_c and right_c:
                             domain[(i, j)].append(1)
                         elif up_c and down_c:
@@ -340,10 +363,195 @@ class Board:
                             domain[(i, j)].append(4)
                             domain[(i, j)].append(5)
                             domain[(i, j)].append(6)
+
+                    if i == 0:
+                        if 2 in domain[(i, j)]:
+                            domain[(i, j)].remove(2)
+                        if 3 in domain[(i, j)]:
+                            domain[(i, j)].remove(3)
+                        if 6 in domain[(i, j)]:
+                            domain[(i, j)].remove(6)
+
+                    if j == 0:
+                        if 1 in domain[(i, j)]:
+                            domain[(i, j)].remove(1)
+                        if 5 in domain[(i, j)]:
+                            domain[(i, j)].remove(5)
+                        if 6 in domain[(i, j)]:
+                            domain[(i, j)].remove(6)
+
+                    if i == self.n - 1:
+                        if 2 in domain[(i, j)]:
+                            domain[(i, j)].remove(2)
+                        if 5 in domain[(i, j)]:
+                            domain[(i, j)].remove(5)
+                        if 4 in domain[(i, j)]:
+                            domain[(i, j)].remove(4)
+
+                    if j == self.n - 1:
+                        if 1 in domain[(i, j)]:
+                            domain[(i, j)].remove(1)
+                        if 3 in domain[(i, j)]:
+                            domain[(i, j)].remove(3)
+                        if 4 in domain[(i, j)]:
+                            domain[(i, j)].remove(4)
+
                 # End if
             # End for
         # End for
         return domain
+
+    """
+    def find_domains(self, matrix):
+        domain = {}
+        for i in range(self.n):
+            for j in range(self.n):
+                if matrix[i][j] == 0:
+                    domain[(i, j)] = []
+                    left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
+
+                    if self.pearls[i][j] == 0:
+                        domain[(i, j)].append(0)
+                        if left_c and right_c:
+                            domain[(i, j)].append(1)
+                        elif up_c and down_c:
+                            domain[(i, j)].append(2)
+                        elif up_c and right_c:
+                            domain[(i, j)].append(3)
+                        elif right_c and down_c:
+                            domain[(i, j)].append(4)
+                        elif down_c and left_c:
+                            domain[(i, j)].append(5)
+                        elif left_c and up_c:
+                            domain[(i, j)].append(6)
+                        elif left_c:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                        elif right_c:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                        elif up_c:
+                            domain[(i, j)].append(2)
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(6)
+                        elif down_c:
+                            domain[(i, j)].append(2)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(4)
+                        else:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(2)
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                    if self.pearls[i][j] == 1:
+                        if left_c and right_c:
+                            if self.verify_white_pearl_horizontal(matrix, i, j):
+                                domain[(i, j)].append(1)
+                        elif up_c and down_c:
+                            if self.verify_white_pearl_vertical(matrix, i, j):
+                                domain[(i, j)].append(2)
+                        elif left_c or right_c:
+                            domain[(i, j)].append(1)
+                        elif up_c or down_c:
+                            domain[(i, j)].append(2)
+                        else:
+                            domain[(i, j)].append(1)
+                            domain[(i, j)].append(2)
+                    elif self.pearls[i][j] == 2:
+                        s_up, s_down, s_left, s_right = self.get_neighbours(matrix, i, j)
+                        if s_up and s_right:
+                            domain[(i, j)].append(3)
+                        if s_right and s_down:
+                            domain[(i, j)].append(4)
+                        if s_down and s_left:
+                            domain[(i, j)].append(5)
+                        if s_left and s_up:
+                            domain[(i, j)].append(6)
+                        if s_up:
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(6)
+                        if s_right:
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                        if s_down:
+                            domain[(i, j)].append(4)
+                            domain[(i, j)].append(5)
+                        if s_left:
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+                        else:
+                            domain[(i, j)].append(3)
+                            domain[(i, j)].append(4)
+                            domain[(i, j)].append(5)
+                            domain[(i, j)].append(6)
+
+                    if i == 0:
+                        if 2 in domain[(i, j)]:
+                            domain[(i, j)].remove(2)
+                        if 3 in domain[(i, j)]:
+                            domain[(i, j)].remove(3)
+                        if 6 in domain[(i, j)]:
+                            domain[(i, j)].remove(6)
+
+                    if j == 0:
+                        if 1 in domain[(i, j)]:
+                            domain[(i, j)].remove(1)
+                        if 5 in domain[(i, j)]:
+                            domain[(i, j)].remove(5)
+                        if 6 in domain[(i, j)]:
+                            domain[(i, j)].remove(6)
+
+                    if i == self.n - 1:
+                        if 2 in domain[(i, j)]:
+                            domain[(i, j)].remove(2)
+                        if 5 in domain[(i, j)]:
+                            domain[(i, j)].remove(5)
+                        if 4 in domain[(i, j)]:
+                            domain[(i, j)].remove(4)
+
+                    if j == self.n - 1:
+                        if 1 in domain[(i, j)]:
+                            domain[(i, j)].remove(1)
+                        if 3 in domain[(i, j)]:
+                            domain[(i, j)].remove(3)
+                        if 4 in domain[(i, j)]:
+                            domain[(i, j)].remove(4)
+
+                # End if
+            # End for
+        # End for
+        return domain
+        
+    """
+
+    """
+    def find_domains(self, matrix):
+        domain = {}
+        for i in range(self.n):
+            for j in range(self.n):
+                if matrix[i][j] == 0:
+                    domain[(i, j)] = []
+                    if self.pearls[i][j] == 0:
+                        domain[(i, j)].append(1)
+                        domain[(i, j)].append(2)
+                        domain[(i, j)].append(3)
+                        domain[(i, j)].append(4)
+                        domain[(i, j)].append(5)
+                        domain[(i, j)].append(6)
+                    if self.pearls[i][j] == 1:
+                        domain[(i, j)].append(1)
+                        domain[(i, j)].append(2)
+                    if self.pearls[i][j] == 2:
+                        domain[(i, j)].append(3)
+                        domain[(i, j)].append(4)
+                        domain[(i, j)].append(5)
+                        domain[(i, j)].append(6)
+        return domain
+    """
 
     def verify_domain(self, domains):
         for key in domains.keys():
@@ -352,12 +560,23 @@ class Board:
         return True
 
     def select_variable(self, domain):
+        domain_copy = domain.copy()
+        for key in domain.keys():
+            if self.pearls[key[0]][key[1]] == 0:
+                del domain_copy[key]
+
+        used_domain = domain
+        if len(domain_copy) > 0:
+            used_domain = domain_copy
+            print("New domain")
+            self.print_domain(used_domain)
         min_domain = float('inf')
         variable = None
-        for key in domain.keys():
-            if len(domain[key]) < min_domain:
-                min_domain = len(domain[key])
+        for key in used_domain.keys():
+            if len(used_domain[key]) < min_domain:
+                min_domain = len(used_domain[key])
                 variable = key
+        print("Variable", variable)
         return variable
 
     def verify_white_pearl_horizontal(self, matrix, row, col):
@@ -381,16 +600,8 @@ class Board:
 
     # End def
 
-
-
     def print_domain(self, domain):
         for key in domain.keys():
             print(key, "->", domain[key])
-
-
-
-
-
-
 
 # End class
