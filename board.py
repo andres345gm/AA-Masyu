@@ -370,7 +370,7 @@ class Board:
             domain.append(2)
         return domain
 
-    def black_pearl_domain(self, matrix, row, col):
+    def black_pearl_domain(self, matrix, i, j):
         domain = []
         s_up, s_down, s_left, s_right = self.get_neighbours(matrix, i, j)
         if s_up and s_right:
