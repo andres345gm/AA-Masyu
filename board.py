@@ -231,40 +231,6 @@ class Board:
             matrix[variable[0]][variable[1]] = 0
         return None
 
-    """
-    def solve_board(self, matrix):
-        variables = self.find_variables(matrix)
-        if len(variables) == 0:
-            if self.verify_board_aux(matrix):
-                return matrix
-            else:
-                return None
-        if self.verify_board_aux(matrix):
-            return matrix
-        variable = variables[0]
-        #domains = self.find_domains(matrix)
-        for value in range(1, 7):
-            matrix[variable[0]][variable[1]] = value
-            result = self.solve_board(matrix)
-            if result is not None:
-                return result
-            matrix[variable[0]][variable[1]] = 0
-        return None
-    """
-
-    """
-        def find_variables(self, matrix):
-            variables = []
-            for i in range(self.n):
-                for j in range(self.n):
-                    if matrix[i][j] == 0:
-                        variables.append((i, j))
-                    # End if
-                # End for
-            # End for
-            return variables
-    """
-
     def find_variables(self, matrix, marked_nodes):
         variables = []
         for i in range(self.n):
@@ -443,34 +409,8 @@ class Board:
             a_left = matrix[row][col - 1]
         if col + 1 < self.n:
             a_right = matrix[row][col + 1]
-        return adjacent
+        return a_up, a_down, a_left, a_right
 
-
-
-    """
-    def find_domains(self, matrix):
-        domain = {}
-        for i in range(self.n):
-            for j in range(self.n):
-                if matrix[i][j] == 0:
-                    domain[(i, j)] = []
-                    if self.pearls[i][j] == 0:
-                        domain[(i, j)].append(1)
-                        domain[(i, j)].append(2)
-                        domain[(i, j)].append(3)
-                        domain[(i, j)].append(4)
-                        domain[(i, j)].append(5)
-                        domain[(i, j)].append(6)
-                    if self.pearls[i][j] == 1:
-                        domain[(i, j)].append(1)
-                        domain[(i, j)].append(2)
-                    if self.pearls[i][j] == 2:
-                        domain[(i, j)].append(3)
-                        domain[(i, j)].append(4)
-                        domain[(i, j)].append(5)
-                        domain[(i, j)].append(6)
-        return domain
-    """
 
     def verify_domain(self, domains):
         for key in domains.keys():
