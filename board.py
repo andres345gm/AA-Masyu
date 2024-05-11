@@ -214,16 +214,13 @@ class Board:
             return matrix
 
         domains = self.find_domains(matrix, variables)
-        self.print_domain(domains)
         variable = self.select_variable(domains)
-        # print("Variable", variable)
+        variables.remove(variable)
         for value in domains[variable]:
-            print("Value", value)
             marked_nodes.add(variable)
             matrix[variable[0]][variable[1]] = value
-
-            domains = self.find_domains(matrix, variables)
-            if self.verify_domain(domains):
+            new_domains = self.find_domains(matrix, variables)
+            if self.verify_domain(new_domains):
                 result = self.solve_board_aux(matrix, marked_nodes)
                 if result is not None:
                     return result
@@ -231,19 +228,6 @@ class Board:
             matrix[variable[0]][variable[1]] = 0
         return None
 
-    """
-    def find_variables(self, matrix, marked_nodes):
-
-        variables = []
-        for i in range(self.n):
-            for j in range(self.n):
-                if (i, j) not in marked_nodes:
-                    variables.append((i, j))
-                # End if
-            # End for
-        # End for
-        return variables    
-    """
 
     def find_variables(self, matrix, marked_nodes):
         variables = []
@@ -345,9 +329,35 @@ class Board:
         left_wp, right_wp, up_wp, down_wp = self.get_adjacent_pearl(matrix, row, col, 1)
         left_bp, right_bp, up_bp, down_bp = self.get_adjacent_pearl(matrix, row, col, 2)
         if (left_c and left_bp) or (right_c and right_bp):
-            domain[(row, col)] = [1]
+            domain[(row, col)].clear()
+            domain[(row, col)].append(1)
         if (up_c and up_bp) or (down_c and down_bp):
+            domain[(row, col)].clear()
             domain[(row, col)] = [2]
+
+
+        if left_c and left_wp:
+            if col - 2 >= 0:
+                if matrix[row][col - 2] == 1:
+                    domain[(row, col)].clear()
+                    domain[(row, col)] = [5, 6]
+        if right_c and right_wp:
+            if col + 2 < self.n:
+                if matrix[row][col + 2] == 1:
+                    domain[(row, col)].clear()
+                    domain[(row, col)] = [3, 4]
+        if up_c and up_wp:
+            if row - 2 >= 0:
+                if matrix[row - 2][col] == 2:
+                    domain[(row, col)].clear()
+                    domain[(row, col)] = [3, 6]
+        if down_c and down_wp:
+            if row + 2 < self.n:
+                if matrix[row + 2][col] == 2:
+                    domain[(row, col)].clear()
+                    domain[(row, col)] = [4, 5]
+
+
 
     def get_adjacent_pearl(self, matrix, row, col, pearl_type):
         # Pearl type 1 -> White pearl
@@ -445,18 +455,6 @@ class Board:
             if 4 in domain[(i, j)]:
                 domain[(i, j)].remove(4)
 
-    def get_adjacent(self, matrix, row, col):
-        a_right, a_left, a_up, a_down = None, None, None, None
-        if row - 1 >= 0:
-            a_up = matrix[row - 1][col]
-        if row + 1 < self.n:
-            a_down = matrix[row + 1][col]
-        if col - 1 >= 0:
-            a_left = matrix[row][col - 1]
-        if col + 1 < self.n:
-            a_right = matrix[row][col + 1]
-        return a_up, a_down, a_left, a_right
-
 
     def verify_domain(self, domains):
         for key in domains.keys():
@@ -479,7 +477,6 @@ class Board:
             if len(used_domain[key]) < min_domain:
                 min_domain = len(used_domain[key])
                 variable = key
-        print("Variable", variable)
         return variable
 
     def verify_white_pearl_horizontal(self, matrix, row, col):
