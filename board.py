@@ -86,7 +86,7 @@ class Board:
 
     # end def
 
-    def get_neighbours(self, matrix, row, col):
+    def get_straight_connections(self, matrix, row, col):
         left, right, up, down = False, False, False, False
         if row - 1 >= 0:
             up = matrix[row - 1][col] == 2
@@ -111,7 +111,7 @@ class Board:
         return left_c, right_c, up_c, down_c
 
     def verify_black_pearl(self, matrix, row, col):
-        up, down, left, right = self.get_neighbours(matrix, row, col)
+        up, down, left, right = self.get_straight_connections(matrix, row, col)
         if matrix[row][col] == 3:
             return up and right
         elif matrix[row][col] == 4:
@@ -252,6 +252,7 @@ class Board:
                     left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
                     if self.pearls[i][j] == 0:
                         domain[(i, j)] = self.empty_space_domain(matrix, i, j)
+                        self.empty_space_special_cases_domain(matrix, domain, i, j)
                     if self.pearls[i][j] == 1:
                         domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
                     elif self.pearls[i][j] == 2:
@@ -318,6 +319,30 @@ class Board:
         """
         return domain
 
+    def empty_space_special_cases_domain(self, matrix, domain, row, col):
+        left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
+        left_wp, right_wp, up_wp, down_wp = self.get_adjacent_pearl(matrix, row, col, 1)
+        left_bp, right_bp, up_bp, down_bp = self.get_adjacent_pearl(matrix, row, col, 2)
+        if (left_c and left_bp) or (right_c and right_bp):
+            domain[(row, col)] = [1]
+        if (up_c and up_bp) or (down_c and down_bp):
+            domain[(row, col)] = [2]
+
+    def get_adjacent_pearl(self, matrix, row, col, pearl_type):
+        # Pearl type 1 -> White pearl
+        # Pearl type 2 -> Black pearl
+        left_p, right_p, up_p, down_p = False, False, False, False
+        if row - 1 >= 0:
+            up_p = matrix[row - 1][col] == pearl_type
+        if row + 1 < self.n:
+            down_p = matrix[row + 1][col] == pearl_type
+        if col - 1 >= 0:
+            left_p = matrix[row][col - 1] == pearl_type
+        if col + 1 < self.n:
+            right_p = matrix[row][col + 1] == pearl_type
+        return up_p, down_p, left_p, right_p
+
+
     def white_pearl_domain(self, matrix, row, col):
         left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
         domain = []
@@ -338,7 +363,7 @@ class Board:
 
     def black_pearl_domain(self, matrix, i, j):
         domain = []
-        s_up, s_down, s_left, s_right = self.get_neighbours(matrix, i, j)
+        s_up, s_down, s_left, s_right = self.get_straight_connections(matrix, i, j)
         if s_up and s_right:
             domain.append(3)
         if s_right and s_down:
@@ -427,8 +452,6 @@ class Board:
         used_domain = domain
         if len(domain_copy) > 0:
             used_domain = domain_copy
-            print("New domain")
-            self.print_domain(used_domain)
         min_domain = float('inf')
         variable = None
         for key in used_domain.keys():
