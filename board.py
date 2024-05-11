@@ -213,7 +213,7 @@ class Board:
         if self.verify_board_aux(matrix):
             return matrix
 
-        domains = self.find_domains(matrix, marked_nodes)
+        domains = self.find_domains(matrix, variables)
         self.print_domain(domains)
         variable = self.select_variable(domains)
         # print("Variable", variable)
@@ -222,7 +222,7 @@ class Board:
             marked_nodes.add(variable)
             matrix[variable[0]][variable[1]] = value
 
-            domains = self.find_domains(matrix, marked_nodes)
+            domains = self.find_domains(matrix, variables)
             if self.verify_domain(domains):
                 result = self.solve_board_aux(matrix, marked_nodes)
                 if result is not None:
@@ -230,6 +230,7 @@ class Board:
             marked_nodes.remove(variable)
             matrix[variable[0]][variable[1]] = 0
         return None
+
 
     def find_variables(self, matrix, marked_nodes):
         variables = []
@@ -243,22 +244,21 @@ class Board:
         return variables
 
 
-    def find_domains(self, matrix, marked_nodes):
+    def find_domains(self, matrix, variables):
         domain = {}
-        for i in range(self.n):
-            for j in range(self.n):
-                if (i, j) not in marked_nodes:
-                    domain[(i, j)] = []
-                    left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
-                    if self.pearls[i][j] == 0:
-                        domain[(i, j)] = self.empty_space_domain(matrix, i, j)
-                        self.empty_space_special_cases_domain(matrix, domain, i, j)
-                    if self.pearls[i][j] == 1:
-                        domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
-                    elif self.pearls[i][j] == 2:
-                        domain[(i, j)] = self.black_pearl_domain(matrix, i, j)
+        for variable in variables:
+            i, j = variable
+            domain[(i, j)] = []
+            left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
+            if self.pearls[i][j] == 0:
+                domain[(i, j)] = self.empty_space_domain(matrix, i, j)
+                self.empty_space_special_cases_domain(matrix, domain, i, j)
+            if self.pearls[i][j] == 1:
+                domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
+            elif self.pearls[i][j] == 2:
+                domain[(i, j)] = self.black_pearl_domain(matrix, i, j)
 
-                    self.reduce_domain_in_edges(matrix, domain, i, j)
+            self.reduce_domain_in_edges(matrix, domain, i, j)
                 # End if
             # End for
         # End for
