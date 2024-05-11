@@ -231,8 +231,9 @@ class Board:
             matrix[variable[0]][variable[1]] = 0
         return None
 
-
+    """
     def find_variables(self, matrix, marked_nodes):
+
         variables = []
         for i in range(self.n):
             for j in range(self.n):
@@ -241,7 +242,27 @@ class Board:
                 # End if
             # End for
         # End for
+        return variables    
+    """
+
+    def find_variables(self, matrix, marked_nodes):
+        variables = []
+        if len(marked_nodes) < len(self.pearls_list):
+            for pearl in self.pearls_list:
+                row, col = pearl[0] - 1, pearl[1] - 1
+                if (row, col) not in marked_nodes:
+                    variables.append((row, col))
+            return variables
+        for i in range(self.n):
+            for j in range(self.n):
+                if (i, j) not in marked_nodes:
+                    left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
+                    if left_c or right_c or up_c or down_c:
+                        variables.append((i, j))
+                # End if
+            # End for
         return variables
+
 
 
     def find_domains(self, matrix, variables):
