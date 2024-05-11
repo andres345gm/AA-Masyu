@@ -214,6 +214,9 @@ class Board:
             return matrix
 
         domains = self.find_domains(matrix, variables)
+        self.print_board(matrix)
+        self.print_domain(domains)
+        print("------")
         variable = self.select_variable(domains)
         variables.remove(variable)
         for value in domains[variable]:
@@ -230,23 +233,24 @@ class Board:
 
 
     def find_variables(self, matrix, marked_nodes):
-        variables = []
+        variables = set()
         if len(marked_nodes) < len(self.pearls_list):
             for pearl in self.pearls_list:
                 row, col = pearl[0] - 1, pearl[1] - 1
                 if (row, col) not in marked_nodes:
-                    variables.append((row, col))
-            return variables
+                    variables.add((row, col))
+            return list(variables)
+            #return variables
         for i in range(self.n):
             for j in range(self.n):
                 if (i, j) not in marked_nodes:
                     left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
                     if left_c or right_c or up_c or down_c:
-                        variables.append((i, j))
+                        variables.add((i, j))
+                    #variables.add((i, j))
                 # End if
             # End for
-        return variables
-
+        return list(variables)
 
 
     def find_domains(self, matrix, variables):
@@ -258,13 +262,14 @@ class Board:
             if self.pearls[i][j] == 0:
                 domain[(i, j)] = self.empty_space_domain(matrix, i, j)
                 self.empty_space_special_cases_domain(matrix, domain, i, j)
+                self.remove_domain_values_that_create_a_cross(matrix, domain, i, j)
             if self.pearls[i][j] == 1:
                 domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
             elif self.pearls[i][j] == 2:
                 domain[(i, j)] = self.black_pearl_domain(matrix, i, j)
 
             self.reduce_domain_in_edges(matrix, domain, i, j)
-                # End if
+            # End if
             # End for
         # End for
         return domain
@@ -272,57 +277,61 @@ class Board:
     def empty_space_domain(self, matrix, row, col):
         left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
         domain = []
-        domain.append(0)
+        # domain.append(0)
         if left_c and right_c:
-            domain.append(1)
+            domain = [1]
         elif up_c and down_c:
-            domain.append(2)
+            domain = [2]
         elif up_c and right_c:
-            domain.append(3)
+            domain = [3]
         elif right_c and down_c:
-            domain.append(4)
+            domain = [4]
         elif down_c and left_c:
-            domain.append(5)
+            domain = [5]
         elif left_c and up_c:
-            domain.append(6)
+            domain = [6]
         elif left_c:
-            domain.append(1)
-            domain.append(5)
-            domain.append(6)
+            domain = [1, 5, 6]
         elif right_c:
-            domain.append(1)
-            domain.append(3)
-            domain.append(4)
+            domain = [1, 3, 4]
         elif up_c:
-            domain.append(2)
-            domain.append(3)
-            domain.append(6)
+            domain = [2, 3, 6]
         elif down_c:
-            domain.append(2)
-            domain.append(5)
-            domain.append(4)
+            domain = [2, 4, 5]
         else:
-            domain.append(1)
-            domain.append(2)
-            domain.append(3)
-            domain.append(4)
-            domain.append(5)
-            domain.append(6)
-        """
-        # Revisar que no este al lado de una perla negra
-        adjacent = self.get_adjacent(matrix, row, col)
-        for adj in adjacent:
-            if self.pearls[adj[0]][adj[1]] == 2:
-                if matrix[adj[0]][adj[1]] == 3:
-                    pass
-                if matrix[adj[0]][adj[1]] == 4:
-                    pass
-                if matrix[adj[0]][adj[1]] == 5:
-                    pass
-                if matrix[adj[0]][adj[1]] == 6:
-                    pass
-        """
+            domain = [1, 2, 3, 4, 5, 6]
+
         return domain
+
+    def remove_domain_values_that_create_a_cross(self, matrix, domain, row, col):
+        left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
+        left_v, right_v, up_v, down_v = self.get_adjacent_values(matrix, row, col)
+        if left_c and (right_v == 2 or right_v == 3 or right_v == 4):
+            if 1 in domain[(row, col)]:
+                domain[(row, col)].remove(1)
+        if right_c and (left_v == 2 or left_v == 5 or left_v == 6):
+            if 1 in domain[(row, col)]:
+                domain[(row, col)].remove(1)
+        if up_c and (down_v == 1 or down_v == 4 or down_v == 5):
+            if 2 in domain[(row, col)]:
+                domain[(row, col)].remove(2)
+        if down_c and (up_v == 1 or up_v == 3 or up_v == 6):
+            if 2 in domain[(row, col)]:
+                domain[(row, col)].remove(2)
+
+
+    def get_adjacent_values(self, matrix, row, col):
+        left_v, right_v, up_v, down_v = None, None, None, None
+        if col - 1 >= 0:
+            left_v = matrix[row][col - 1]
+        if col + 1 < self.n:
+            right_v = matrix[row][col + 1]
+        if row - 1 >= 0:
+            up_v = matrix[row - 1][col]
+        if row + 1 < self.n:
+            down_v = matrix[row + 1][col]
+        return left_v, right_v, up_v, down_v
+
 
     def empty_space_special_cases_domain(self, matrix, domain, row, col):
         left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
@@ -334,7 +343,6 @@ class Board:
         if (up_c and up_bp) or (down_c and down_bp):
             domain[(row, col)].clear()
             domain[(row, col)] = [2]
-
 
         if left_c and left_wp:
             if col - 2 >= 0:
@@ -357,8 +365,6 @@ class Board:
                     domain[(row, col)].clear()
                     domain[(row, col)] = [4, 5]
 
-
-
     def get_adjacent_pearl(self, matrix, row, col, pearl_type):
         # Pearl type 1 -> White pearl
         # Pearl type 2 -> Black pearl
@@ -373,53 +379,42 @@ class Board:
             right_p = matrix[row][col + 1] == pearl_type
         return up_p, down_p, left_p, right_p
 
-
     def white_pearl_domain(self, matrix, row, col):
         left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
         domain = []
         if left_c and right_c:
-            if self.verify_white_pearl_horizontal(matrix, row, col):
-                domain.append(1)
+            domain = [1]
         elif up_c and down_c:
-            if self.verify_white_pearl_vertical(matrix, row, col):
-                domain.append(2)
+            domain = [2]
         elif left_c or right_c:
-            domain.append(1)
+            domain = [1]
         elif up_c or down_c:
-            domain.append(2)
+            domain = [2]
         else:
-            domain.append(1)
-            domain.append(2)
+            domain = [1, 2]
         return domain
 
     def black_pearl_domain(self, matrix, i, j):
         domain = []
         s_up, s_down, s_left, s_right = self.get_straight_connections(matrix, i, j)
         if s_up and s_right:
-            domain.append(3)
-        if s_right and s_down:
-            domain.append(4)
-        if s_down and s_left:
-            domain.append(5)
-        if s_left and s_up:
-            domain.append(6)
-        if s_up:
-            domain.append(3)
-            domain.append(6)
-        if s_right:
-            domain.append(3)
-            domain.append(4)
-        if s_down:
-            domain.append(4)
-            domain.append(5)
-        if s_left:
-            domain.append(5)
-            domain.append(6)
+            domain = [3]
+        elif s_right and s_down:
+            domain = [4]
+        elif s_down and s_left:
+            domain = [5]
+        elif s_left and s_up:
+            domain = [6]
+        elif s_up:
+            domain = [3, 6]
+        elif s_right:
+            domain = [3, 4]
+        elif s_down:
+            domain = [4, 5]
+        elif s_left:
+            domain = [5, 6]
         else:
-            domain.append(3)
-            domain.append(4)
-            domain.append(5)
-            domain.append(6)
+            domain = [3, 4, 5, 6]
         return domain
 
     def reduce_domain_in_edges(self, matrix, domain, i, j):
@@ -454,7 +449,6 @@ class Board:
                 domain[(i, j)].remove(3)
             if 4 in domain[(i, j)]:
                 domain[(i, j)].remove(4)
-
 
     def verify_domain(self, domains):
         for key in domains.keys():
@@ -503,5 +497,11 @@ class Board:
     def print_domain(self, domain):
         for key in domain.keys():
             print(key, "->", domain[key])
+
+    def print_board(self, matrix):
+        print()
+        for row in matrix:
+            print(row)
+
 
 # End class
