@@ -210,25 +210,22 @@ class Board:
             else:
                 return None
 
-        if self.verify_board_aux(matrix):
-            return matrix
-
         domains = self.find_domains(matrix, variables)
         self.print_board(matrix)
         self.print_domain(domains)
         print("------")
         variable = self.select_variable(domains)
         variables.remove(variable)
+        marked_nodes.add(variable)
         for value in domains[variable]:
-            marked_nodes.add(variable)
             matrix[variable[0]][variable[1]] = value
             new_domains = self.find_domains(matrix, variables)
-            if self.verify_domain(new_domains):
-                result = self.solve_board_aux(matrix, marked_nodes)
-                if result is not None:
-                    return result
-            marked_nodes.remove(variable)
-            matrix[variable[0]][variable[1]] = 0
+            #if self.verify_domain(new_domains):
+            result = self.solve_board_aux(matrix, marked_nodes)
+            if result is not None:
+                return result
+        marked_nodes.remove(variable)
+        matrix[variable[0]][variable[1]] = 0
         return None
 
 
@@ -261,7 +258,7 @@ class Board:
             left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
             if self.pearls[i][j] == 0:
                 domain[(i, j)] = self.empty_space_domain(matrix, i, j)
-                self.empty_space_special_cases_domain(matrix, domain, i, j)
+                # self.empty_space_special_cases_domain(matrix, domain, i, j)
                 self.remove_domain_values_that_create_a_cross(matrix, domain, i, j)
             if self.pearls[i][j] == 1:
                 domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
@@ -364,6 +361,7 @@ class Board:
                 if matrix[row + 2][col] == 2:
                     domain[(row, col)].clear()
                     domain[(row, col)] = [4, 5]
+
 
     def get_adjacent_pearl(self, matrix, row, col, pearl_type):
         # Pearl type 1 -> White pearl
