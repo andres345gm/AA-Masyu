@@ -258,7 +258,7 @@ class Board:
             left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
             if self.pearls[i][j] == 0:
                 domain[(i, j)] = self.empty_space_domain(matrix, i, j)
-                self.empty_space_special_cases_domain(matrix, domain, i, j)
+                # self.empty_space_special_cases_domain(matrix, domain, i, j)
                 self.remove_domain_values_that_create_a_cross(matrix, domain, i, j)
             if self.pearls[i][j] == 1:
                 domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
