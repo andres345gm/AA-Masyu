@@ -202,8 +202,15 @@ class Board:
         return self.solve_board_aux(matrix, marked_nodes)
 
     def solve_board_aux(self, matrix, marked_nodes):
-
-        variables = self.find_variables(matrix, marked_nodes)
+        variables = set()
+        if len(marked_nodes) == 0:
+            for pearl in self.pearls_list:
+                row, col = pearl[0] - 1, pearl[1] - 1
+                if (row, col) not in marked_nodes:
+                    variables.add((row, col))
+            variables = list(variables)
+        else:
+            variables = self.find_variables(matrix, marked_nodes)
         if len(variables) == 0:
             if self.verify_board_aux(matrix):
                 return matrix
@@ -213,17 +220,18 @@ class Board:
         domains = self.find_domains(matrix, variables)
         self.print_board(matrix)
         self.print_domain(domains)
-        print("------")
         variable = self.select_variable(domains)
+        print("------")
+        print(variable)
         variables.remove(variable)
         marked_nodes.add(variable)
         for value in domains[variable]:
             matrix[variable[0]][variable[1]] = value
             new_domains = self.find_domains(matrix, variables)
-            #if self.verify_domain(new_domains):
-            result = self.solve_board_aux(matrix, marked_nodes)
-            if result is not None:
-                return result
+            if self.verify_domain(new_domains):
+                result = self.solve_board_aux(matrix, marked_nodes)
+                if result is not None:
+                    return result
         marked_nodes.remove(variable)
         matrix[variable[0]][variable[1]] = 0
         return None
@@ -231,20 +239,21 @@ class Board:
 
     def find_variables(self, matrix, marked_nodes):
         variables = set()
+
+        """
         if len(marked_nodes) < len(self.pearls_list):
             for pearl in self.pearls_list:
                 row, col = pearl[0] - 1, pearl[1] - 1
                 if (row, col) not in marked_nodes:
                     variables.add((row, col))
             return list(variables)
-            #return variables
+        """
         for i in range(self.n):
             for j in range(self.n):
                 if (i, j) not in marked_nodes:
                     left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
                     if left_c or right_c or up_c or down_c:
                         variables.add((i, j))
-                    #variables.add((i, j))
                 # End if
             # End for
         return list(variables)
@@ -258,7 +267,7 @@ class Board:
             left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
             if self.pearls[i][j] == 0:
                 domain[(i, j)] = self.empty_space_domain(matrix, i, j)
-                # self.empty_space_special_cases_domain(matrix, domain, i, j)
+                self.empty_space_special_cases_domain(matrix, domain, i, j)
                 self.remove_domain_values_that_create_a_cross(matrix, domain, i, j)
             if self.pearls[i][j] == 1:
                 domain[(i, j)] = self.white_pearl_domain(matrix, i, j)

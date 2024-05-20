@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import sys
 
@@ -158,8 +160,9 @@ class GUI:
                             self.display_message("¡Has ganado!")
                             pygame.time.wait(5000)
                     if event.key == pygame.K_r: # Tecla R
-
+                        start = time.time()
                         solution = self.board.solve_board()
+                        end = time.time()
                         if solution is not None:
                             self.board.matrix = solution
                             print("Solución encontrada")
@@ -167,6 +170,7 @@ class GUI:
                             print("No se encontró solución")
                         self.draw_board()
                         pygame.display.flip()
+                        print("Tiempo de ejecución: ", end - start)
                 # End if
             # End for
             self.draw_board()
