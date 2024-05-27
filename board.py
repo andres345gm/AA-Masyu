@@ -1,6 +1,3 @@
-from graphic_interface import GUI
-
-
 def read_input_file(filename):
     with open(filename, 'r') as file:
         n = int(file.readline())
