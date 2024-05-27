@@ -1,3 +1,6 @@
+from graphic_interface import GUI
+
+
 def read_input_file(filename):
     with open(filename, 'r') as file:
         n = int(file.readline())
@@ -69,22 +72,33 @@ class Board:
 
     def verify_white_pearl(self, matrix, row, col):
         # Verification if the line is horizontal
+        vertical = self.verify_white_pearl_vertical(matrix, row, col)
+        horizontal = self.verify_white_pearl_horizontal(matrix, row, col)
+        return vertical or horizontal
+
+    # end def
+
+    def verify_white_pearl_horizontal(self, matrix, row, col):
+        # Verification if the line is horizontal
         if col - 1 >= 0 and col + 1 < self.n:
-            if matrix[row][col] == 1:
-                left_turn = matrix[row][col - 1] == 3 or matrix[row][col - 1] == 4
-                right_turn = matrix[row][col + 1] == 5 or matrix[row][col + 1] == 6
-                return left_turn or right_turn
-            # End if
-        if row - 1 >= 0 and row + 1 < self.n:
-            # Verification if the line is vertical
-            if matrix[row][col] == 2:
-                top_turn = matrix[row - 1][col] == 4 or matrix[row - 1][col] == 5
-                bottom_turn = matrix[row + 1][col] == 3 or matrix[row + 1][col] == 6
-                return top_turn or bottom_turn
+            left_turn = matrix[row][col - 1] == 3 or matrix[row][col - 1] == 4
+            right_turn = matrix[row][col + 1] == 5 or matrix[row][col + 1] == 6
+            return left_turn or right_turn
             # End if
         return False
 
-    # end def
+        # end def
+
+    def verify_white_pearl_vertical(self, matrix, row, col):
+        # Verification if the line is vertical
+        if row - 1 >= 0 and row + 1 < self.n:
+            top_turn = matrix[row - 1][col] == 4 or matrix[row - 1][col] == 5
+            bottom_turn = matrix[row + 1][col] == 3 or matrix[row + 1][col] == 6
+            return top_turn or bottom_turn
+            # End if
+        return False
+
+    # End def
 
     def get_straight_connections(self, matrix, row, col):
         left, right, up, down = False, False, False, False
@@ -218,11 +232,11 @@ class Board:
                 return None
 
         domains = self.find_domains(matrix, variables)
-        self.print_board(matrix)
-        self.print_domain(domains)
+        # self.print_board(matrix)
+        # self.print_domain(domains)
         variable = self.select_variable(domains)
-        print("------")
-        print(variable)
+        # print("------")
+        # print(variable)
         variables.remove(variable)
         marked_nodes.add(variable)
         for value in domains[variable]:
@@ -236,18 +250,8 @@ class Board:
         matrix[variable[0]][variable[1]] = 0
         return None
 
-
     def find_variables(self, matrix, marked_nodes):
         variables = set()
-
-        """
-        if len(marked_nodes) < len(self.pearls_list):
-            for pearl in self.pearls_list:
-                row, col = pearl[0] - 1, pearl[1] - 1
-                if (row, col) not in marked_nodes:
-                    variables.add((row, col))
-            return list(variables)
-        """
         for i in range(self.n):
             for j in range(self.n):
                 if (i, j) not in marked_nodes:
@@ -258,7 +262,6 @@ class Board:
             # End for
         return list(variables)
 
-
     def find_domains(self, matrix, variables):
         domain = {}
         for variable in variables:
@@ -267,7 +270,6 @@ class Board:
             left_c, right_c, up_c, down_c = self.get_connections(matrix, i, j)
             if self.pearls[i][j] == 0:
                 domain[(i, j)] = self.empty_space_domain(matrix, i, j)
-                self.empty_space_special_cases_domain(matrix, domain, i, j)
                 self.remove_domain_values_that_create_a_cross(matrix, domain, i, j)
             if self.pearls[i][j] == 1:
                 domain[(i, j)] = self.white_pearl_domain(matrix, i, j)
@@ -276,7 +278,6 @@ class Board:
 
             self.reduce_domain_in_edges(matrix, domain, i, j)
             # End if
-            # End for
         # End for
         return domain
 
@@ -325,7 +326,6 @@ class Board:
             if 2 in domain[(row, col)]:
                 domain[(row, col)].remove(2)
 
-
     def get_adjacent_values(self, matrix, row, col):
         left_v, right_v, up_v, down_v = None, None, None, None
         if col - 1 >= 0:
@@ -337,48 +337,6 @@ class Board:
         if row + 1 < self.n:
             down_v = matrix[row + 1][col]
         return left_v, right_v, up_v, down_v
-
-
-    def empty_space_special_cases_domain(self, matrix, domain, row, col):
-        left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
-        left_wp, right_wp, up_wp, down_wp = self.get_adjacent_pearl(matrix, row, col, 1)
-        left_bp, right_bp, up_bp, down_bp = self.get_adjacent_pearl(matrix, row, col, 2)
-        if (left_c and left_bp) or (right_c and right_bp):
-            domain[(row, col)] = [1]
-        elif (up_c and up_bp) or (down_c and down_bp):
-            domain[(row, col)] = [2]
-
-        if left_c and left_wp:
-            if col - 2 >= 0:
-                if matrix[row][col - 2] == 1:
-                    domain[(row, col)] = [5, 6]
-        if right_c and right_wp:
-            if col + 2 < self.n:
-                if matrix[row][col + 2] == 1:
-                    domain[(row, col)] = [3, 4]
-        if up_c and up_wp:
-            if row - 2 >= 0:
-                if matrix[row - 2][col] == 2:
-                    domain[(row, col)] = [3, 6]
-        if down_c and down_wp:
-            if row + 2 < self.n:
-                if matrix[row + 2][col] == 2:
-                    domain[(row, col)] = [4, 5]
-
-
-    def get_adjacent_pearl(self, matrix, row, col, pearl_type):
-        # Pearl type 1 -> White pearl
-        # Pearl type 2 -> Black pearl
-        left_p, right_p, up_p, down_p = False, False, False, False
-        if row - 1 >= 0:
-            up_p = self.pearls[row - 1][col] == pearl_type
-        if row + 1 < self.n:
-            down_p = self.pearls[row + 1][col] == pearl_type
-        if col - 1 >= 0:
-            left_p = self.pearls[row][col - 1] == pearl_type
-        if col + 1 < self.n:
-            right_p = self.pearls[row][col + 1] == pearl_type
-        return up_p, down_p, left_p, right_p
 
     def white_pearl_domain(self, matrix, row, col):
         left_c, right_c, up_c, down_c = self.get_connections(matrix, row, col)
@@ -474,27 +432,6 @@ class Board:
                 variable = key
         return variable
 
-    def verify_white_pearl_horizontal(self, matrix, row, col):
-        # Verification if the line is horizontal
-        if col - 1 >= 0 and col + 1 < self.n:
-            left_turn = matrix[row][col - 1] == 3 or matrix[row][col - 1] == 4
-            right_turn = matrix[row][col + 1] == 5 or matrix[row][col + 1] == 6
-            return left_turn or right_turn
-            # End if
-        return False
-
-    # end def
-    def verify_white_pearl_vertical(self, matrix, row, col):
-        # Verification if the line is vertical
-        if row - 1 >= 0 and row + 1 < self.n:
-            top_turn = matrix[row - 1][col] == 4 or matrix[row - 1][col] == 5
-            bottom_turn = matrix[row + 1][col] == 3 or matrix[row + 1][col] == 6
-            return top_turn or bottom_turn
-            # End if
-        return False
-
-    # End def
-
     def print_domain(self, domain):
         for key in domain.keys():
             print(key, "->", domain[key])
@@ -503,6 +440,5 @@ class Board:
         print()
         for row in matrix:
             print(row)
-
 
 # End class

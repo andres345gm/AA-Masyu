@@ -45,22 +45,15 @@ class Menu:
         play_text_rect = play_text.get_rect(center=play_button_rect.center)
         self.screen.blit(play_text, play_text_rect)
 
-        # Opción de Solución con algoritmo
-        solution_button_rect = play_button_rect.move(0, button_height + button_spacing)
-        pygame.draw.rect(self.screen, button_color, solution_button_rect)
-        solution_text = font.render("Solución Algoritmo", True, self.BLACK)
-        solution_text_rect = solution_text.get_rect(center=solution_button_rect.center)
-        self.screen.blit(solution_text, solution_text_rect)
-
         # Opción de Instrucciones
-        instructions_button_rect = play_button_rect.move(0, (button_height + button_spacing) * 2)
+        instructions_button_rect = play_button_rect.move(0, (button_height + button_spacing))
         pygame.draw.rect(self.screen, button_color, instructions_button_rect)
         instructions_text = font.render("Instrucciones", True, self.BLACK)
         instructions_text_rect = instructions_text.get_rect(center=instructions_button_rect.center)
         self.screen.blit(instructions_text, instructions_text_rect)
 
         # Opción de Salir
-        quit_button_rect = play_button_rect.move(0, (button_height + button_spacing) * 3)
+        quit_button_rect = play_button_rect.move(0, (button_height + button_spacing) * 2)
         pygame.draw.rect(self.screen, button_color, quit_button_rect)
         quit_text = font.render("Salir", True, self.BLACK)
         quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
@@ -87,14 +80,6 @@ class Menu:
                         pygame.draw.rect(self.screen, button_color, play_button_rect)
                     # End else
 
-                    # Boton de Solución con algoritmo
-                    if solution_button_rect.collidepoint(x, y):
-                        pygame.draw.rect(self.screen, hover_color, solution_button_rect)
-                    # End if
-                    else:
-                        pygame.draw.rect(self.screen, button_color, solution_button_rect)
-                    # End else
-
                     # Boton de Instrucciones
                     if instructions_button_rect.collidepoint(x, y):
                         pygame.draw.rect(self.screen, hover_color, instructions_button_rect)
@@ -113,7 +98,6 @@ class Menu:
 
                     # Volver a dibujar los textos
                     self.screen.blit(play_text, play_text_rect)
-                    self.screen.blit(solution_text, solution_text_rect)
                     self.screen.blit(instructions_text, instructions_text_rect)
                     self.screen.blit(quit_text, quit_text_rect)
 
@@ -125,14 +109,6 @@ class Menu:
                     if play_button_rect.collidepoint(x, y):
                         return "Jugar"
                     # End if
-
-                    # Opción de Solución con algoritmo
-                    elif solution_button_rect.collidepoint(x, y):
-                        # Lógica para la solución
-                        print("Opción Elegida: Solución Algoritmo")
-                        pass
-                    # End if
-
                     # Opción de Instrucciones
                     elif instructions_button_rect.collidepoint(x, y):
                         # Lógica para las instrucciones
