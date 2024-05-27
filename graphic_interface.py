@@ -11,6 +11,7 @@ class GUI:
     ORANGE = (240, 148, 64)
     WIDTH, HEIGHT = 480, 480
     LINE_WIDTH = 3
+    BUTTON_WIDTH, BUTTON_HEIGHT = 480, 50
 
     def __init__(self, board):
         self.board = board
@@ -18,9 +19,10 @@ class GUI:
         self.c_value = 3
         # Initialize Pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT + self.BUTTON_HEIGHT))
         pygame.display.set_caption("Masyu con Pygame")
-
+        self.solution_button_rect = pygame.Rect((self.WIDTH - self.BUTTON_WIDTH) // 2, self.HEIGHT, self.BUTTON_WIDTH,
+                                                self.BUTTON_HEIGHT)
     # End def
 
     def draw_board(self):
@@ -50,6 +52,11 @@ class GUI:
                 # End if
             # End for
         # End for
+        pygame.draw.rect(self.screen, self.ORANGE, self.solution_button_rect)
+        font = pygame.font.Font(None, 24)
+        text = font.render("Solución", True, self.BLACK)
+        text_rect = text.get_rect(center=self.solution_button_rect.center)
+        self.screen.blit(text, text_rect)
         pygame.display.flip()  # Update the full display Surface to the screen
 
     # End def
@@ -109,8 +116,10 @@ class GUI:
     # End def
 
     def display_message(self, message):
-        background = pygame.Surface((self.WIDTH // 2, self.HEIGHT // 4))
-        background.fill(self.ORANGE)
+        # Create a new surface for the background
+        background = pygame.Surface((self.WIDTH // 1.5, self.HEIGHT // 4), pygame.SRCALPHA)
+        # Fill the surface with a semi-transparent orange color
+        background.fill((*self.ORANGE, 128))  # 128 is the alpha value (semi-transparent)
         background_rect = background.get_rect(center=(self.WIDTH // 2, self.HEIGHT // 2))
         self.screen.blit(background, background_rect)
 
@@ -127,20 +136,40 @@ class GUI:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    row = event.pos[1] // self.square_size
-                    col = event.pos[0] // self.square_size
-                    if event.button == 1:  # Left click
-                        self.board.matrix[row][col] = 2
-                    elif event.button == 3:  # Right click
-                        self.board.matrix[row][col] = 1
-                    elif event.button == 2:
-                        self.board.matrix[row][col] = 0
-                    # End if
-                    if self.board.verify_board():
+                    x, y = event.pos
+                    if self.solution_button_rect.collidepoint(x, y):
+                        start = time.time()
+                        solution = self.board.solve_board()
+                        end = time.time()
+                        print("Tiempo de ejecución: ", end - start)
+                        if solution is not None:
+                            self.board.matrix = solution
+                            self.draw_board()
+                            pygame.display.flip()
+                            self.display_message("¡Solución encontrada!")
+                            pygame.time.wait(1000)
+                        else:
+                            self.draw_board()
+                            pygame.display.flip()
+                            self.display_message("¡Solución no encontrada!")
+                            pygame.time.wait(1000)
                         self.draw_board()
                         pygame.display.flip()
-                        self.display_message("¡Has ganado!")
-                        pygame.time.wait(5000)
+                    else:
+                        row = event.pos[1] // self.square_size
+                        col = event.pos[0] // self.square_size
+                        if event.button == 1:  # Left click
+                            self.board.matrix[row][col] = 2
+                        elif event.button == 3:  # Right click
+                            self.board.matrix[row][col] = 1
+                        elif event.button == 2:
+                            self.board.matrix[row][col] = 0
+                        # End if
+                        if self.board.verify_board():
+                            self.draw_board()
+                            pygame.display.flip()
+                            self.display_message("¡Has ganado!")
+                            pygame.time.wait(1000)
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:  # Tecla C
@@ -158,19 +187,7 @@ class GUI:
                             self.draw_board()
                             pygame.display.flip()
                             self.display_message("¡Has ganado!")
-                            pygame.time.wait(5000)
-                    if event.key == pygame.K_r: # Tecla R
-                        start = time.time()
-                        solution = self.board.solve_board()
-                        end = time.time()
-                        if solution is not None:
-                            self.board.matrix = solution
-                            print("Solución encontrada")
-                        else:
-                            print("No se encontró solución")
-                        self.draw_board()
-                        pygame.display.flip()
-                        print("Tiempo de ejecución: ", end - start)
+                            pygame.time.wait(1000)
                 # End if
             # End for
             self.draw_board()

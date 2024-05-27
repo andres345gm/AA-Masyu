@@ -33,7 +33,7 @@ class Menu:
         button_height = 50
         button_spacing = 20
         total_button_height = (button_height + button_spacing) * 4
-        top_margin = (self.HEIGHT - total_button_height) // 2
+        top_margin = (self.HEIGHT - total_button_height) // 1.5
 
         # Se dibujan las opciones del menú
         font = pygame.font.SysFont(None, self.MENU_FONT_SIZE)
