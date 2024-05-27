@@ -176,18 +176,19 @@ class GUI:
                         # Incrementar el valor y guardarlo en la matriz
                         row = pygame.mouse.get_pos()[1] // self.square_size
                         col = pygame.mouse.get_pos()[0] // self.square_size
-                        self.board.matrix[row][col] = self.c_value
-                        # print("Click en la celda ({}, {})".format(row, col))
-                        # print(self.board.matrix)
-                        self.c_value += 1
-                        if self.c_value > 6:  # Si llega a 7, reiniciar en 3
-                            self.c_value = 3
+                        if row < self.board.n and col < self.board.n:
+                            self.board.matrix[row][col] = self.c_value
+                            # print("Click en la celda ({}, {})".format(row, col))
+                            # print(self.board.matrix)
+                            self.c_value += 1
+                            if self.c_value > 6:  # Si llega a 7, reiniciar en 3
+                                self.c_value = 3
 
-                        if self.board.verify_board():
-                            self.draw_board()
-                            pygame.display.flip()
-                            self.display_message("¡Has ganado!")
-                            pygame.time.wait(1000)
+                            if self.board.verify_board():
+                                self.draw_board()
+                                pygame.display.flip()
+                                self.display_message("¡Has ganado!")
+                                pygame.time.wait(1000)
                 # End if
             # End for
             self.draw_board()
