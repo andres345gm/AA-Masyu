@@ -229,11 +229,13 @@ class Board:
                 return None
 
         domains = self.find_domains(matrix, variables)
-        # self.print_board(matrix)
-        # self.print_domain(domains)
+        print("Tablero:")
+        self.print_board(matrix)
+        print("Dominios:")
+        self.print_domain(domains)
         variable = self.select_variable(domains)
-        # print("------")
-        # print(variable)
+        print("------")
+        print("Variable seleccionada:", variable)
         variables.remove(variable)
         marked_nodes.add(variable)
         for value in domains[variable]:
